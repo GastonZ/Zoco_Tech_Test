@@ -21,16 +21,16 @@ let users = [
 
 let nextUserId = 3
 
-export const login = ({ email, password}) => {
+export const login = ({ email, password }) => {
     return new Promise((res, rej) => {
         setTimeout(() => {
             const user = users.find(x => x.email === email && x.password === password)
             if (!user) return rej('Credenciales incorrectas')
-                
-            const token = btoa(JSON.stringify({ email: user.email, role: user.role}))
+
+            const token = btoa(JSON.stringify({ email: user.email, role: user.role }))
             res({
                 token,
-                user: {id: user.id, name: user.name, role: user.role, email: user.email}
+                user: { id: user.id, name: user.name, role: user.role, email: user.email }
             })
         }, 800)
     })
@@ -58,7 +58,7 @@ export const getUserProfile = (email) => {
             if (!user) {
                 rej('Usuario no encontrado')
             }
-            const {password, ...rest} = user
+            const { password, ...rest } = user
             res(rest)
         }, 400)
     })
@@ -68,13 +68,13 @@ export const addStudy = (userId, study) => {
     return new Promise((res, rej) => {
         setTimeout(() => {
             const user = users.find(x => x.id === userId)
-            user.studies.push({id: Date.now(), ...study})
+            user.studies.push({ id: Date.now(), ...study })
             res(user.studies)
         }, 500)
     })
 }
 
-export const updateStudy = (userId, studyId, updatedStudies ) => {
+export const updateStudy = (userId, studyId, updatedStudies) => {
     return new Promise((res, rej) => {
         setTimeout(() => {
             const user = users.find(x => x.id === userId)
@@ -84,22 +84,45 @@ export const updateStudy = (userId, studyId, updatedStudies ) => {
     })
 }
 
+export const removeStudy = (userId, studyId) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const user = users.find(x => x.id === userId)
+            const studyIndex = user.studies.findIndex(x => x.id === studyId)
+            user.studies.splice(studyIndex, 1)
+            resolve(user.studies)
+        }, 400)
+    })
+}
+
+
 export const addAddress = (userId, address) => {
     return new Promise((res, rej) => {
         setTimeout(() => {
             const user = users.find(x => x.id === userId)
-            user.addresses.push({ id: Date.now(), ...address})
+            user.addresses.push({ id: Date.now(), ...address })
             res(user.addresses)
         }, 500)
     })
 }
 
 export const updateAddress = (userId, addressId, updatedAddress) => {
-    return new Promise(() => {
+    return new Promise((res, rej) => {
         setTimeout(() => {
             const user = users.find(x => x.id === userId)
-            user.addresses.map(x => x.id === addressId ? { ...x, ...updateAddress} : x)
+            user.addresses = user.addresses.map(x => x.id === addressId ? { ...x, ...updatedAddress } : x)
             res(user.addresses)
-        }, 500)   
+        }, 500)
+    })
+}
+
+export const removeAddress = (userId, addressId) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const user = users.find(x => x.id === userId)
+            const addressIndex = user.addresses.findIndex(x => x.id === addressId)
+            user.addresses.splice(addressIndex, 1)
+            resolve(user.addresses)
+        }, 400)
     })
 }
