@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login as loginMock } from '../api/mockApi'
-import { useAuth } from '../context/context'
+import { useAuth } from '../context/AuthContext'
 
 const Login = () => {
 
