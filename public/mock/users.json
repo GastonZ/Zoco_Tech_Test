@@ -1,0 +1,22 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Levi Ackerman",
+      "email": "admin@gmail.com",
+      "password": "admin",
+      "role": "admin",
+      "studies": [],
+      "addresses": []
+    },
+    {
+      "id": 2,
+      "name": "Annie Leonhart",
+      "email": "user@gmail.com",
+      "password": "user",
+      "role": "user",
+      "studies": [],
+      "addresses": []
+    }
+  ]
+}

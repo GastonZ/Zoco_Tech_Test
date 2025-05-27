@@ -9,6 +9,7 @@ import {
     removeStudy,
     removeAddress
 } from "../api/mockApi"
+import UserSection from "../components/UserSection"
 
 const User = () => {
     const { user } = useAuth()
@@ -23,7 +24,6 @@ const User = () => {
 
     const [editingStudyId, setEditingStudyId] = useState(null)
     const [editingAddressId, setEditingAddressId] = useState(null)
-    console.log(user);
 
     useEffect(() => {
 
@@ -95,173 +95,56 @@ const User = () => {
             <h2 className="text-xl font-bold">Perfil de {profile.name}</h2>
             <p>Email: {profile.email}</p>
 
-            <section>
-                <h3 className="font-semibold">Estudios</h3>
-                <ul className="space-y-2">
-                    {profile.studies.map((studie) => {
-                        const isEditing = editingStudyId === studie.id
-                        const currentValue = editStudies[studie.id] ?? studie.title
-                        const isChanged = currentValue !== studie.title
-                        const isValid = currentValue.trim() !== ""
+            <UserSection
+                title="Estudios"
+                items={profile.studies}
+                isEditing={!!editingStudyId}
+                editingId={editingStudyId}
+                editValues={editStudies}
+                onEditChange={(id, val) =>
+                    setEditStudies((prev) => ({ ...prev, [id]: val }))
+                }
+                onEdit={(id) => {
+                    handleUpdateStudy(id)
+                    setEditingStudyId(null)
+                }}
+                onDelete={handleDeleteStudy}
+                onStartEdit={(id, label) => {
+                    setEditingStudyId(id)
+                    setEditStudies((prev) => ({ ...prev, [id]: label }))
+                }}
+                inputValue={newStudy}
+                onInputChange={setNewStudy}
+                onAdd={handleAddStudy}
+                addBtnDisabled={!newStudy.trim()}
+                placeholder="Nuevo estudio"
+            />
 
-                        return (
-                            <li key={studie.id} className="flex items-center gap-2">
-                                {isEditing ? (
-                                    <>
-                                        <input
-                                            type="text"
-                                            value={currentValue}
-                                            onChange={(e) =>
-                                                setEditStudies((prev) => ({
-                                                    ...prev,
-                                                    [studie.id]: e.target.value,
-                                                }))
-                                            }
-                                            className="border px-2 py-1 rounded w-full"
-                                        />
-                                        <button
-                                            onClick={() => {
-                                                handleUpdateStudy(studie.id)
-                                                setEditingStudyId(null)
-                                            }}
-                                            className="bg-green-500 text-white px-3 py-1 rounded disabled:opacity-50"
-                                            disabled={!isChanged || !isValid}
-                                        >
-                                            Guardar
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span className="w-full">{studie.title}</span>
-                                        <button
-                                            onClick={() => {
-                                                setEditingStudyId(studie.id)
-                                                setEditStudies((prev) => ({ ...prev, [studie.id]: studie.title }))
-                                            }}
-                                            className="bg-blue-500 text-white px-3 py-1 rounded"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                if (confirm('¿Estás seguro de eliminar este estudio?')) {
-                                                    handleDeleteStudy(studie.id)
-                                                }
-                                            }}
-                                            className="bg-red-500 text-white px-3 py-1 rounded"
-                                            title="Eliminar"
-                                        >
-                                            ×
-                                        </button>
-
-                                    </>
-                                )}
-                            </li>
-                        )
-                    })}
-                </ul>
-
-                <div className="flex gap-2 mt-2">
-                    <input
-                        className="border px-2 py-1 rounded w-full"
-                        placeholder="Nuevo estudio"
-                        value={newStudy}
-                        onChange={(e) => setNewStudy(e.target.value)}
-                    />
-                    <button
-                        onClick={handleAddStudy}
-                        className="bg-blue-500 text-white px-3 py-1 rounded"
-                        disabled={!newStudy.trim()}
-                    >
-                        Agregar
-                    </button>
-                </div>
-            </section>
-
-            <section>
-                <h3 className="font-semibold">Direcciones</h3>
-                <ul className="space-y-2">
-                    {profile.addresses.map((address) => {
-                        const isEditing = editingAddressId === address.id
-                        const currentValue = editAddresses[address.id] ?? address.location
-                        const isChanged = currentValue !== address.location
-                        const isValid = currentValue.trim() !== ""
-
-                        return (
-                            <li key={address.id} className="flex items-center gap-2">
-                                {isEditing ? (
-                                    <>
-                                        <input
-                                            type="text"
-                                            value={currentValue}
-                                            onChange={(e) =>
-                                                setEditAddresses((prev) => ({
-                                                    ...prev,
-                                                    [address.id]: e.target.value,
-                                                }))
-                                            }
-                                            className="border px-2 py-1 rounded w-full"
-                                        />
-                                        <button
-                                            onClick={() => {
-                                                handleUpdateAddress(address.id)
-                                                setEditingAddressId(null)
-                                            }}
-                                            className="bg-green-500 text-white px-3 py-1 rounded disabled:opacity-50"
-                                            disabled={!isChanged || !isValid}
-                                        >
-                                            Guardar
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span className="w-full">{address.location}</span>
-                                        <button
-                                            onClick={() => {
-                                                setEditingAddressId(address.id)
-                                                setEditAddresses((prev) => ({
-                                                    ...prev,
-                                                    [address.id]: address.location,
-                                                }))
-                                            }}
-                                            className="bg-blue-500 text-white px-3 py-1 rounded"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                if (confirm('¿Estás seguro de eliminar esta dirección?')) {
-                                                    handleDeleteAddress(address.id)
-                                                }
-                                            }}
-                                            className="bg-red-500 text-white px-3 py-1 rounded"
-                                            title="Eliminar"
-                                        >
-                                            ×
-                                        </button>
-                                    </>
-                                )}
-                            </li>
-                        )
-                    })}
-                </ul>
-
-                <div className="flex gap-2 mt-2">
-                    <input
-                        className="border px-2 py-1 rounded w-full"
-                        placeholder="Nueva dirección"
-                        value={newAddress}
-                        onChange={(e) => setNewAddress(e.target.value)}
-                    />
-                    <button
-                        onClick={handleAddAddress}
-                        className="bg-blue-500 text-white px-3 py-1 rounded"
-                        disabled={!newAddress.trim()}
-                    >
-                        Agregar
-                    </button>
-                </div>
-            </section>
+            <UserSection
+                title="Direcciones"
+                items={profile.addresses}
+                isEditing={!!editingAddressId}
+                editingId={editingAddressId}
+                editValues={editAddresses}
+                onEditChange={(id, val) =>
+                    setEditAddresses((prev) => ({ ...prev, [id]: val }))
+                }
+                onEdit={(id) => {
+                    handleUpdateAddress(id)
+                    setEditingAddressId(null)
+                }}
+                onDelete={handleDeleteAddress}
+                onStartEdit={(id, label) => {
+                    setEditingAddressId(id)
+                    setEditAddresses((prev) => ({ ...prev, [id]: label }))
+                }}
+                inputValue={newAddress}
+                onInputChange={setNewAddress}
+                onAdd={handleAddAddress}
+                addBtnDisabled={!newAddress.trim()}
+                placeholder="Nueva dirección"
+                itemLabel="location"
+            />
         </div>
     )
 }
