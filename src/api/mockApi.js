@@ -1,25 +1,38 @@
-let users = [
-    {
-        id: 1,
-        name: 'Admin',
-        email: 'admin@gmail.com',
-        password: 'admin',
-        role: 'admin',
-        studies: [],
-        addresses: []
-    },
-    {
-        id: 1,
-        name: 'User',
-        email: 'user@gmail.com',
-        password: 'user',
-        role: 'user',
-        studies: [],
-        addresses: []
-    },
-]
+let users = []
 
-let nextUserId = 3
+const savedUsers = sessionStorage.getItem('users')
+if (savedUsers) {
+    users = JSON.parse(savedUsers)
+} else {
+    users = [
+        {
+            id: 1,
+            name: 'Levi Ackerman',
+            email: 'admin@gmail.com',
+            password: 'admin',
+            role: 'admin',
+            studies: [],
+            addresses: [],
+        },
+        {
+            id: 2,
+            name: 'Annie Leonhart',
+            email: 'user@gmail.com',
+            password: 'user',
+            role: 'user',
+            studies: [],
+            addresses: [],
+        }
+    ]
+    sessionStorage.setItem('users', JSON.stringify(users))
+}
+
+let nextUserId = users.length + 1
+
+const saveUsersData = () => {
+    sessionStorage.setItem('users', JSON.stringify(users))
+}
+
 
 export const login = ({ email, password }) => {
     return new Promise((res, rej) => {
@@ -36,7 +49,7 @@ export const login = ({ email, password }) => {
     })
 }
 
-export const getAllUsers = (userData) => {
+export const createUser = (userData) => {
     return new Promise((res, rej) => {
         setTimeout(() => {
             const newUser = {
@@ -46,7 +59,16 @@ export const getAllUsers = (userData) => {
                 addresses: []
             }
             users.push(newUser)
+            saveUsersData()
             res(newUser)
+        }, 400)
+    })
+}
+
+export const getAllUsers = () => {
+    return new Promise((res, rej) => {
+        setTimeout(() => {
+            res(users.map(({ password, ...u }) => u))
         }, 400)
     })
 }
@@ -69,6 +91,7 @@ export const addStudy = (userId, study) => {
         setTimeout(() => {
             const user = users.find(x => x.id === userId)
             user.studies.push({ id: Date.now(), ...study })
+            saveUsersData()
             res(user.studies)
         }, 500)
     })
@@ -79,18 +102,20 @@ export const updateStudy = (userId, studyId, updatedStudies) => {
         setTimeout(() => {
             const user = users.find(x => x.id === userId)
             user.studies = user.studies.map(x => x.id === studyId ? { ...x, ...updatedStudies } : x)
+            saveUsersData()
             res(user.studies)
         }, 600)
     })
 }
 
 export const removeStudy = (userId, studyId) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((res, rej) => {
         setTimeout(() => {
             const user = users.find(x => x.id === userId)
             const studyIndex = user.studies.findIndex(x => x.id === studyId)
             user.studies.splice(studyIndex, 1)
-            resolve(user.studies)
+            saveUsersData()
+            res(user.studies)
         }, 400)
     })
 }
@@ -101,6 +126,7 @@ export const addAddress = (userId, address) => {
         setTimeout(() => {
             const user = users.find(x => x.id === userId)
             user.addresses.push({ id: Date.now(), ...address })
+            saveUsersData()
             res(user.addresses)
         }, 500)
     })
@@ -111,18 +137,20 @@ export const updateAddress = (userId, addressId, updatedAddress) => {
         setTimeout(() => {
             const user = users.find(x => x.id === userId)
             user.addresses = user.addresses.map(x => x.id === addressId ? { ...x, ...updatedAddress } : x)
+            saveUsersData()
             res(user.addresses)
         }, 500)
     })
 }
 
 export const removeAddress = (userId, addressId) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((res, rej) => {
         setTimeout(() => {
             const user = users.find(x => x.id === userId)
             const addressIndex = user.addresses.findIndex(x => x.id === addressId)
             user.addresses.splice(addressIndex, 1)
-            resolve(user.addresses)
+            saveUsersData()
+            res(user.addresses)
         }, 400)
     })
 }
