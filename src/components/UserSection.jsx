@@ -96,7 +96,8 @@ const UserSection = ({
 
       <div className="flex gap-2 mt-2 flex-col">
         <RegularInput
-          placeholder={placeholder}
+          placeholder={''}
+          label={placeholder}
           value={inputValue}
           onChange={(e) => onInputChange(e.target.value)}
         />
