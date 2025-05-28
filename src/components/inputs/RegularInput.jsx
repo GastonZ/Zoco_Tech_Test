@@ -6,6 +6,7 @@ const RegularInput = ({
   value,
   onChange,
   required = false,
+  className,
   name,
   placeholder,
 }) => {
@@ -16,7 +17,7 @@ const RegularInput = ({
         type={type}
         name={name}
         placeholder={placeholder}
-        className="w-full border px-3 py-2 rounded"
+        className={className || 'w-full border px-3 py-2 rounded'}
         value={value}
         onChange={onChange}
         required={required}

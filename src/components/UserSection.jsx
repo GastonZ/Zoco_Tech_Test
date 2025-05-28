@@ -34,19 +34,25 @@ const UserSection = ({
           return (
             <li key={id} className="flex items-center gap-2">
               {editingId === id ? (
-                <>
+                <div className='flex flex-col gap-4'>
                   <RegularInput
                     type="text"
                     value={currentValue}
                     onChange={(e) => onEditChange(id, e.target.value)}
-                    className="w-full"
                   />
-                  <RegularBtn
-                    text="Guardar"
-                    onClick={() => onEdit(id)}
-                    disabled={!changed || !valid}
-                  />
-                </>
+                  <div className='flex gap-4 justify-center'>
+
+                    <RegularBtn
+                      text="Guardar"
+                      onClick={() => onEdit(id)}
+                      disabled={!changed || !valid}
+                    />
+                    <RegularBtn
+                      text="Cancelar"
+                      onClick={() => onStartEdit('')}
+                    />
+                  </div>
+                </div>
               ) : (
                 <>
                   <span className="w-full">{label}</span>
@@ -72,7 +78,6 @@ const UserSection = ({
           placeholder={placeholder}
           value={inputValue}
           onChange={(e) => onInputChange(e.target.value)}
-          className="w-full"
         />
         <RegularBtn
           text="Agregar"
