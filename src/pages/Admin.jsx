@@ -18,11 +18,6 @@ const Admin = () => {
     const [editAddresses, setEditAddresses] = useState({})
     const [newAddress, setNewAddress] = useState("")
 
-    console.log(users);
-
-    console.log(selectedUser);
-
-
     useEffect(() => {
         fetchUsers()
     }, [])
