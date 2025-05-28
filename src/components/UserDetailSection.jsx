@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import RegularInput from './inputs/RegularInput'
 import RegularBtn from './buttons/RegularBtn'
 
@@ -17,11 +17,26 @@ const UserDetailSection = ({
     fieldName,
     placeholder,
 }) => {
+
+    const [filter, setFilter] = useState("")
+
+    const filteredItems = items.filter(item =>
+        item[fieldName].toLowerCase().includes(filter.toLowerCase())
+    )
+
+
     return (
         <div>
-            <h4 className="font-semibold">{title}</h4>
-            <ul className="space-y-2 mb-2">
-                {items.map((item) => {
+            <h4 className="font-semibold ">{title}</h4>
+
+            <RegularInput
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder={`Buscar ${title.toLowerCase()}`}
+            />
+            <div className='h-[20px]' />
+            <ul className="font-semibold overflow-y-auto max-h-[200px] pr-2">
+                {filteredItems.map((item) => {
                     const isEditing = editingId === item.id
                     const currentValue = typeof editMap[item.id] === 'string'
                         ? editMap[item.id]
@@ -43,47 +58,50 @@ const UserDetailSection = ({
                                     />
                                     <RegularBtn
                                         onClick={() => onUpdate(item.id)}
-                                        className="bg-green-500 text-white px-3 py-1 rounded disabled:opacity-50"
+                                        className="bg-green-400 text-white px-3 py-1 rounded disabled:opacity-50 cursor-pointer hover:bg-green-500 transition"
                                         disabled={!isChanged || !isValid}
-                                        text={'Guardar'}
+                                        text={'👌'}
                                     />
                                     <RegularBtn
                                         onClick={() => setEditingId('')}
-                                        className="bg-green-500 text-white px-3 py-1 rounded disabled:opacity-50"
+                                        className="bg-red-300 text-black px-3 py-1 rounded disabled:opacity-50 cursor-pointer hover:bg-red-400 transition"
                                         text={'Cancelar'}
                                     />
                                 </>
                             ) : (
-                                <>
-                                    <span className="w-full">{item[fieldName]}</span>
-                                    <RegularBtn
-                                        onClick={() => {
-                                            setEditingId(item.id)
-                                            setEditMap((prev) => ({ ...prev, [item.id]: item[fieldName] }))
-                                        }}
-                                        className="bg-blue-500 text-white px-3 py-1 rounded"
-                                        text={'Editar'}
-                                    />
-                                    <RegularBtn
-                                        onClick={() => onDelete(item.id)}
-                                        className="bg-red-500 text-white px-3 py-1 rounded"
-                                        text={'x'}
-                                    />
-                                </>
+                                <div className='flex items-center w-full justify-between gap-10 border-b border-gray-300 pb-2'>
+                                    <span className="">{item[fieldName]}</span>
+                                    <div className='flex gap-2'>
+                                        <RegularBtn
+                                            onClick={() => {
+                                                setEditingId(item.id)
+                                                setEditMap((prev) => ({ ...prev, [item.id]: item[fieldName] }))
+                                            }}
+                                            className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer hover:bg-blue-600 transition"
+                                            text={"✏️"}
+                                        />
+                                        <RegularBtn
+                                            onClick={() => onDelete(item.id)}
+                                            className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer hover:bg-red-600 transition"
+                                            text="🗑️"
+                                        />
+                                    </div>
+                                </div>
                             )}
                         </li>
                     )
                 })}
             </ul>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mt-6">
                 <RegularInput
                     value={inputValue}
-                    placeholder={placeholder}
+
+                    label={placeholder}
                     onChange={(e) => setInputValue(e.target.value)}
                 />
                 <RegularBtn
                     onClick={onAdd}
-                    className={"bg-blue-600 text-white px-3 py-1 rounded"}
+                    className={"bg-yellow-300 hover:bg-yellow-500 transition cursor-pointer text-black font-semibold px-3 py-1 rounded"}
                     disabled={!inputValue?.trim()}
                     text={'Agregar'}
                 />
