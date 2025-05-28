@@ -13,6 +13,7 @@ import {
 import UserSection from "../../components/UserSection"
 import styles from './style.module.css'
 import RegularBtn from "../../components/buttons/RegularBtn"
+import RegularInput from "../../components/inputs/RegularInput"
 
 const User = () => {
     const { user } = useAuth()
@@ -134,15 +135,14 @@ const User = () => {
 
                     {editingProfile ? (
                         <>
-                            <input
+                            <span className="text-sm font-semibold">Nombre</span>
+                            <RegularInput
                                 type="text"
-                                className="border px-2 py-1 rounded"
                                 value={profileData.name}
                                 onChange={(e) => setProfileData((prev) => ({ ...prev, name: e.target.value }))}
                             />
-                            <input
-                                type="text"
-                                className="border px-2 py-1 rounded"
+                            <span className="text-sm font-semibold">Foto de perfil (URL)</span>
+                            <RegularInput
                                 value={profileData.photo}
                                 onChange={(e) => setProfileData((prev) => ({ ...prev, photo: e.target.value }))}
                                 placeholder="URL de imagen de perfil"
