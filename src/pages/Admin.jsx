@@ -5,10 +5,13 @@ import UserDetailSection from '../components/UserDetailSection'
 import RegularBtn from '../components/buttons/RegularBtn'
 
 const Admin = () => {
+    const [user, setUser] = useState([])
     const [users, setUsers] = useState([])
     const [selectedUser, setSelectedUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [newUser, setNewUser] = useState({ name: '', email: '', photo: '', password: '', role: 'user' })
+    const [profile, setProfile] = useState(null)
+    const [profileData, setProfileData] = useState({ name: '', photo: '' })
 
     const [editingStudyId, setEditingStudyId] = useState(null)
     const [editStudies, setEditStudies] = useState({})
@@ -17,6 +20,23 @@ const Admin = () => {
     const [editingAddressId, setEditingAddressId] = useState(null)
     const [editAddresses, setEditAddresses] = useState({})
     const [newAddress, setNewAddress] = useState("")
+
+    useEffect(() => {
+
+        const fetchProfile = async () => {
+            try {
+                const data = await getUserProfile(user.email)
+                setProfileData({ name: data.name, photo: data.photo })
+                setProfile(data)
+            } catch (err) {
+                console.error(err)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchProfile()
+    }, [user.email])
 
     useEffect(() => {
         fetchUsers()
@@ -93,74 +113,88 @@ const Admin = () => {
     }
 
     return (
-        <div className="p-6 space-y-6">
-            <h2 className="text-2xl font-bold">Panel de Administración</h2>
+        <div className="p-6 md:flex md:gap-6 min-h-screen max-w-6xl w-full justify-center mx-auto">
 
-            <CreateUserForm
-                initialUser={newUser}
-                onChange={handleChangeNewUser}
-                onSubmit={handleCreateUser}
-            />
+            <aside className="bg-[#EEEDE4] p-4 rounded-xl w-full md:max-w-[250px] flex flex-col items-center text-center">
+                {profile && (
+                    <>
+                        <img
+                            src={profile.photo}
+                            alt="Admin"
+                            className="h-[100x] w-[150px] rounded-full object-cover mb-4"
+                        />
+                        <h2 className="font-bold text-lg">{profile.name}</h2>
+                        <p className="text-sm text-gray-600">{profile.email}</p>
+                        <p className="text-sm text-gray-500 mt-1">Rol: {profile.role}</p>
+                    </>
+                )}
+            </aside>
+            <div className="flex-1 space-y-6 mt-6 md:mt-0">
+                <h2 className="text-2xl font-bold text-[#EEEDE4]">Panel de Administración</h2>
+                <CreateUserForm
+                    initialUser={newUser}
+                    onChange={handleChangeNewUser}
+                    onSubmit={handleCreateUser}
+                />
+                <div className="bg-[#EEEDE4] p-6 rounded-xl">
+                    <h3 className="font-semibold mb-2">Usuarios existentes</h3>
+                    {loading ? (
+                        <p>Cargando...</p>
+                    ) : (
+                        <ul className="space-y-2">
+                            {users.map((u) => (
+                                <li key={u.id} className="flex justify-between items-center border p-2 rounded">
+                                    <span>{u.name} ({u.role})</span>
+                                    <RegularBtn
+                                        className={"bg-yellow-300 p-1 rounded-sm text-sm font-semibold hover:bg-yellow-500 transition cursor-pointer"}
+                                        onClick={() => handleSelectUser(u.email)}
+                                        text={'Administrar'}
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+                {selectedUser && (
+                    <div className="p-4 border shadow-md space-y-4 bg-[#EEEDE4] rounded-xl">
+                        <h3 className="text-lg font-bold">Datos de: {selectedUser.name}</h3>
+                        <p>Email: {selectedUser.email}</p>
+                        <p>Rol: {selectedUser.role}</p>
 
-            <div>
-                <h3 className="font-semibold mb-2">Usuarios existentes</h3>
-                {loading ? (
-                    <p>Cargando...</p>
-                ) : (
-                    <ul className="space-y-2">
-                        {users.map((u) => (
-                            <li key={u.id} className="flex justify-between items-center border p-2 rounded">
-                                <span>{u.name} ({u.role})</span>
-                                <RegularBtn
-                                    className={"text-blue-600 underline"}
-                                    onClick={() => handleSelectUser(u.email)}
-                                    text={'Ver detalle'}
-                                />
-                            </li>
-                        ))}
-                    </ul>
+                        <UserDetailSection
+                            title="Estudios"
+                            items={selectedUser.studies}
+                            fieldName="title"
+                            placeholder="Nuevo estudio"
+                            onAdd={() => handleAddStudyToUser(newStudy)}
+                            onUpdate={(id) => handleUpdateStudy(id, editStudies[id])}
+                            onDelete={handleDeleteStudy}
+                            editingId={editingStudyId}
+                            setEditingId={setEditingStudyId}
+                            editMap={editStudies}
+                            setEditMap={setEditStudies}
+                            inputValue={newStudy}
+                            setInputValue={setNewStudy}
+                        />
+
+                        <UserDetailSection
+                            title="Direcciones"
+                            items={selectedUser.addresses}
+                            fieldName="location"
+                            placeholder="Nueva dirección"
+                            onAdd={() => handleAddAddressToUser(newAddress)}
+                            onUpdate={(id) => handleUpdateAddress(id, editAddresses[id])}
+                            onDelete={handleDeleteAddress}
+                            editingId={editingAddressId}
+                            setEditingId={setEditingAddressId}
+                            editMap={editAddresses}
+                            setEditMap={setEditAddresses}
+                            inputValue={newAddress}
+                            setInputValue={setNewAddress}
+                        />
+                    </div>
                 )}
             </div>
-
-            {selectedUser && (
-                <div className="mt-6 p-4 border rounded shadow-md space-y-4">
-                    <h3 className="text-lg font-bold">Datos de: {selectedUser.name}</h3>
-                    <p>Email: {selectedUser.email}</p>
-                    <p>Rol: {selectedUser.role}</p>
-
-                    <UserDetailSection
-                        title="Estudios"
-                        items={selectedUser.studies}
-                        fieldName="title"
-                        placeholder="Nuevo estudio"
-                        onAdd={() => handleAddStudyToUser(newStudy)}
-                        onUpdate={(id) => handleUpdateStudy(id, editStudies[id])}
-                        onDelete={handleDeleteStudy}
-                        editingId={editingStudyId}
-                        setEditingId={setEditingStudyId}
-                        editMap={editStudies}
-                        setEditMap={setEditStudies}
-                        inputValue={newStudy}
-                        setInputValue={setNewStudy}
-                    />
-
-                    <UserDetailSection
-                        title="Direcciones"
-                        items={selectedUser.addresses}
-                        fieldName="location"
-                        placeholder="Nueva dirección"
-                        onAdd={() => handleAddAddressToUser(newAddress)}
-                        onUpdate={(id) => handleUpdateAddress(id, editAddresses[id])}
-                        onDelete={handleDeleteAddress}
-                        editingId={editingAddressId}
-                        setEditingId={setEditingAddressId}
-                        editMap={editAddresses}
-                        setEditMap={setEditAddresses}
-                        inputValue={newAddress}
-                        setInputValue={setNewAddress}
-                    />
-                </div>
-            )}
         </div>
     )
 }
