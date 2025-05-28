@@ -8,11 +8,12 @@
     background-color: #171717;
     border-radius: 25px;
     transition: .4s ease-in-out;
+    border: 1px solid #F4EC10;
 }
 
 .form:hover {
     transform: scale(1.05);
-    border: 1px solid #F4EC10;
+
 }
 
 .heading {

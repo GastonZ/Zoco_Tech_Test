@@ -1,4 +1,5 @@
 import React from 'react'
+import styles from './style.module.css'
 
 const RegularInput = ({
   label,
@@ -11,17 +12,18 @@ const RegularInput = ({
   placeholder,
 }) => {
   return (
-    <div>
-      {label && <label className="block mb-1">{label}</label>}
+    <div className={styles.input_container}>
       <input
         type={type}
         name={name}
         placeholder={placeholder}
-        className={className || 'w-full border px-3 py-2 rounded'}
+        className={styles.input_field}
         value={value}
         onChange={onChange}
         required={required}
       />
+      <label className={styles.input_label}>{label}</label>
+      <span className={styles.input_highlight}></span>
     </div>
   )
 }

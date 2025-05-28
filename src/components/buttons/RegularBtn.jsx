@@ -8,16 +8,19 @@ const RegularBtn = ({
   className,
   loading = false,
 }) => {
+  const baseClass = 'disabled:opacity-50'
+  const defaultClass = 'w-full bg-[#F4EC10] text-black py-2 rounded hover:bg-yellow-500 cursor-pointer transition text-lg font-semibold'
+
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={className || 'w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer'}
+      className={`${baseClass} ${className || defaultClass}`}
     >
       {loading ? 'Cargando...' : text}
     </button>
   )
 }
 
-export default RegularBtn;
+export default RegularBtn
