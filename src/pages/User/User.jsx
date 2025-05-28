@@ -52,7 +52,7 @@ const User = () => {
 
     const handleSaveProfile = async () => {
         try {
-            const updated = await updateUserProfile(profile.id, profileData)
+            const updated = await updateUserProfile(profileData)
             setProfile(updated)
             setEditingProfile(false)
         } catch (err) {
@@ -62,19 +62,19 @@ const User = () => {
 
 
     const handleAddStudy = async () => {
-        const updated = await addStudy(profile.id, { title: newStudy })
+        const updated = await addStudy({ title: newStudy })
         setProfile({ ...profile, studies: updated })
         setNewStudy("")
     }
 
     const handleAddAddress = async () => {
-        const updated = await addAddress(profile.id, { location: newAddress })
+        const updated = await addAddress( { location: newAddress })
         setProfile({ ...profile, addresses: updated })
         setNewAddress("")
     }
 
     const handleUpdateStudy = async (studyId) => {
-        const updated = await updateStudy(profile.id, studyId, {
+        const updated = await updateStudy( studyId, {
             title: editStudies[studyId],
         })
         setProfile({ ...profile, studies: updated })
@@ -82,7 +82,7 @@ const User = () => {
     }
 
     const handleUpdateAddress = async (addressId) => {
-        const updated = await updateAddress(profile.id, addressId, {
+        const updated = await updateAddress(addressId, {
             location: editAddresses[addressId],
         })
         setProfile({ ...profile, addresses: updated })
@@ -91,7 +91,7 @@ const User = () => {
 
     const handleDeleteStudy = async (studyId) => {
         try {
-            const updated = await removeStudy(profile.id, studyId)
+            const updated = await removeStudy( studyId)
             setProfile({ ...profile, studies: updated })
         } catch (err) {
             console.error(err)
@@ -100,7 +100,7 @@ const User = () => {
 
     const handleDeleteAddress = async (studyId) => {
         try {
-            const updated = await removeAddress(profile.id, studyId)
+            const updated = await removeAddress( studyId)
             setProfile({ ...profile, addresses: updated })
         } catch (err) {
             console.error(err)

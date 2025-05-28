@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getAllUsers, getUserProfile, createUser, addStudy, addAddress, updateStudy, removeStudy, updateAddress, removeAddress } from '../api/mockApi'
+import { getAllUsers, getUserProfile, createUser, adminAddStudy, adminUpdateStudy, adminRemoveStudy, adminAddAddress, adminUpdateAddress, adminRemoveAddress } from '../api/mockApi'
 import CreateUserForm from '../components/CreateUserForm'
 import UserDetailSection from '../components/UserDetailSection'
 import RegularBtn from '../components/buttons/RegularBtn'
@@ -8,7 +8,7 @@ const Admin = () => {
     const [users, setUsers] = useState([])
     const [selectedUser, setSelectedUser] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user' })
+    const [newUser, setNewUser] = useState({ name: '', email: '', photo: '', password: '', role: 'user' })
 
     const [editingStudyId, setEditingStudyId] = useState(null)
     const [editStudies, setEditStudies] = useState({})
@@ -17,6 +17,11 @@ const Admin = () => {
     const [editingAddressId, setEditingAddressId] = useState(null)
     const [editAddresses, setEditAddresses] = useState({})
     const [newAddress, setNewAddress] = useState("")
+
+    console.log(users);
+
+    console.log(selectedUser);
+
 
     useEffect(() => {
         fetchUsers()
@@ -48,19 +53,20 @@ const Admin = () => {
         setNewUser(updatedUser)
     }
 
-    const handleSelectUser = async (email) => {
-        const profile = await getUserProfile(email)
-        setSelectedUser(profile)
+
+    const handleSelectUser = (email) => {
+        const user = users.find(u => u.email === email)
+        setSelectedUser(user)
     }
 
     const handleAddStudyToUser = async (title) => {
-        const updated = await addStudy(selectedUser.id, { title })
+        const updated = await adminAddStudy(selectedUser.id, { title })
         setSelectedUser({ ...selectedUser, studies: updated })
         setNewStudy('')
     }
 
     const handleUpdateStudy = async (id, title) => {
-        const updated = await updateStudy(selectedUser.id, id, { title })
+        const updated = await adminUpdateStudy(selectedUser.id, id, { title })
         setSelectedUser({ ...selectedUser, studies: updated })
         setEditingStudyId(null)
     }
@@ -68,18 +74,18 @@ const Admin = () => {
     const handleDeleteStudy = async (id) => {
         const confirmDelete = confirm('¿Estás seguro de eliminar este estudio?')
         if (!confirmDelete) return
-        const updated = await removeStudy(selectedUser.id, id)
+        const updated = await adminRemoveStudy(selectedUser.id, id)
         setSelectedUser({ ...selectedUser, studies: updated })
     }
 
     const handleAddAddressToUser = async (location) => {
-        const updated = await addAddress(selectedUser.id, { location })
+        const updated = await adminAddAddress(selectedUser.id, { location })
         setSelectedUser({ ...selectedUser, addresses: updated })
         setNewAddress('')
     }
 
     const handleUpdateAddress = async (id, location) => {
-        const updated = await updateAddress(selectedUser.id, id, { location })
+        const updated = await adminUpdateAddress(selectedUser.id, id, { location })
         setSelectedUser({ ...selectedUser, addresses: updated })
         setEditingAddressId(null)
     }
@@ -87,7 +93,7 @@ const Admin = () => {
     const handleDeleteAddress = async (id) => {
         const confirmDelete = confirm('¿Estás seguro de eliminar esta dirección?')
         if (!confirmDelete) return
-        const updated = await removeAddress(selectedUser.id, id)
+        const updated = await adminRemoveAddress(selectedUser.id, id)
         setSelectedUser({ ...selectedUser, addresses: updated })
     }
 

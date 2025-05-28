@@ -4,11 +4,6 @@ import { simulateDelay } from '../utils/helper'
 let users = []
 const STORAGE_KEY = 'users'
 
-const checkToken = () => {
-    const token = sessionStorage.getItem('token')
-    if (!token) throw new Error('No autorizado')
-}
-
 const loadInitialUsers = async () => {
     const savedUsers = sessionStorage.getItem(STORAGE_KEY)
     if (savedUsers) {
@@ -28,6 +23,12 @@ const saveUsersData = () => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(users))
 }
 
+const getUserFromToken = () => {
+    const token = sessionStorage.getItem('token')
+    if (!token) throw new Error('No autorizado')
+    return JSON.parse(atob(token))
+}
+
 export const login = async ({ email, password }) => {
     await simulateDelay(800)
     const user = users.find(x => x.email === email && x.password === password)
@@ -41,8 +42,13 @@ export const login = async ({ email, password }) => {
 }
 
 export const createUser = async (userData) => {
-    checkToken()
+    const current = getUserFromToken()
+    if (current.role !== 'admin') throw new Error('No autorizado')
     await simulateDelay(400)
+
+    const emailExists = users.some(x => x.email === userData.email)
+    if (emailExists) throw new Error('El email ya existe')
+
     const newUser = {
         id: nextUserId++,
         ...userData,
@@ -56,83 +62,148 @@ export const createUser = async (userData) => {
 }
 
 export const getAllUsers = async () => {
-    checkToken()
+    const current = getUserFromToken()
+    if (current.role !== 'admin') throw new Error('No autorizado')
     await simulateDelay(400)
-    return users.map(({ password, ...u }) => u)
+    return users.map(({ password, ...x }) => x)
 }
 
-export const getUserProfile = async (email) => {
-    checkToken()
+export const getUserProfile = async () => {
+    const current = getUserFromToken()
     await simulateDelay(400)
-    const user = users.find(x => x.email === email)
+    const user = users.find(x => x.email === current.email)
     if (!user) throw new Error('Usuario no encontrado')
     const { password, ...rest } = user
     return rest
 }
 
-export const addStudy = async (userId, study) => {
-    checkToken()
+// User functions ...
+
+export const addStudy = async (study) => {
+    const current = getUserFromToken()
     await simulateDelay(500)
+    const user = users.find(x => x.email === current.email)
+    user.studies.push({ id: Date.now(), ...study })
+    saveUsersData()
+    return user.studies
+}
+
+export const updateStudy = async (studyId, updatedStudies) => {
+    const current = getUserFromToken()
+    await simulateDelay(600)
+    const user = users.find(x => x.email === current.email)
+    user.studies = user.studies.map(x => x.id === studyId ? { ...x, ...updatedStudies } : x)
+    saveUsersData()
+    return user.studies
+}
+
+export const removeStudy = async (studyId) => {
+    const current = getUserFromToken()
+    await simulateDelay(400)
+    const user = users.find(x => x.email === current.email)
+    const index = user.studies.findIndex(x => x.id === studyId)
+    user.studies.splice(index, 1)
+    saveUsersData()
+    return user.studies
+}
+
+export const addAddress = async (address) => {
+    const current = getUserFromToken()
+    await simulateDelay(500)
+    const user = users.find(x => x.email === current.email)
+    user.addresses.push({ id: Date.now(), ...address })
+    saveUsersData()
+    return user.addresses
+}
+
+export const updateAddress = async (addressId, updatedAddress) => {
+    const current = getUserFromToken()
+    await simulateDelay(500)
+    const user = users.find(x => x.email === current.email)
+    user.addresses = user.addresses.map(x => x.id === addressId ? { ...x, ...updatedAddress } : x)
+    saveUsersData()
+    return user.addresses
+}
+
+export const removeAddress = async (addressId) => {
+    const current = getUserFromToken()
+    await simulateDelay(400)
+    const user = users.find(x => x.email === current.email)
+    const index = user.addresses.findIndex(x => x.id === addressId)
+    user.addresses.splice(index, 1)
+    saveUsersData()
+    return user.addresses
+}
+
+export const updateUserProfile = async (updatedFields) => {
+    const current = getUserFromToken()
+    await simulateDelay(500)
+    const user = users.find(x => x.email === current.email)
+    if (!user) throw new Error('Usuario no encontrado')
+    Object.assign(user, updatedFields)
+    saveUsersData()
+    const { password, ...safeUser } = user
+    return safeUser
+}
+
+// Admin functions ...
+
+export const adminAddStudy = async (userId, study) => {
+    const current = getUserFromToken()
+    if (current.role !== 'admin') throw new Error('No autorizado')
+    await simulateDelay(400)
     const user = users.find(x => x.id === userId)
     user.studies.push({ id: Date.now(), ...study })
     saveUsersData()
     return user.studies
 }
 
-export const updateStudy = async (userId, studyId, updatedStudies) => {
-    checkToken()
-    await simulateDelay(600)
-    const user = users.find(x => x.id === userId)
-    user.studies = user.studies.map(x => x.id === studyId ? { ...x, ...updatedStudies } : x)
-    saveUsersData()
-    return user.studies
-}
-
-export const removeStudy = async (userId, studyId) => {
-    checkToken()
+export const adminUpdateStudy = async (userId, studyId, updated) => {
+    const current = getUserFromToken()
+    if (current.role !== 'admin') throw new Error('No autorizado')
     await simulateDelay(400)
     const user = users.find(x => x.id === userId)
-    const studyIndex = user.studies.findIndex(x => x.id === studyId)
-    user.studies.splice(studyIndex, 1)
+    user.studies = user.studies.map(s => s.id === studyId ? { ...s, ...updated } : s)
     saveUsersData()
     return user.studies
 }
 
-export const addAddress = async (userId, address) => {
-    checkToken()
-    await simulateDelay(500)
+export const adminRemoveStudy = async (userId, studyId) => {
+    const current = getUserFromToken()
+    if (current.role !== 'admin') throw new Error('No autorizado')
+    await simulateDelay(400)
+    const user = users.find(x => x.id === userId)
+    user.studies = user.studies.filter(s => s.id !== studyId)
+    saveUsersData()
+    return user.studies
+}
+
+export const adminAddAddress = async (userId, address) => {
+    const current = getUserFromToken()
+    if (current.role !== 'admin') throw new Error('No autorizado')
+    await simulateDelay(400)
     const user = users.find(x => x.id === userId)
     user.addresses.push({ id: Date.now(), ...address })
     saveUsersData()
     return user.addresses
 }
 
-export const updateAddress = async (userId, addressId, updatedAddress) => {
-    checkToken()
-    await simulateDelay(500)
-    const user = users.find(x => x.id === userId)
-    user.addresses = user.addresses.map(x => x.id === addressId ? { ...x, ...updatedAddress } : x)
-    saveUsersData()
-    return user.addresses
-}
-
-export const removeAddress = async (userId, addressId) => {
-    checkToken()
+export const adminUpdateAddress = async (userId, addressId, updated) => {
+    const current = getUserFromToken()
+    if (current.role !== 'admin') throw new Error('No autorizado')
     await simulateDelay(400)
     const user = users.find(x => x.id === userId)
-    const addressIndex = user.addresses.findIndex(x => x.id === addressId)
-    user.addresses.splice(addressIndex, 1)
+    user.addresses = user.addresses.map(a => a.id === addressId ? { ...a, ...updated } : a)
     saveUsersData()
     return user.addresses
 }
 
-export const updateUserProfile = async (userId, updatedFields) => {
-    checkToken()
-    await simulateDelay(500)
-    const user = users.find(u => u.id === userId)
-    if (!user) throw new Error("Usuario no encontrado")
-    Object.assign(user, updatedFields)
+export const adminRemoveAddress = async (userId, addressId) => {
+    const current = getUserFromToken()
+    if (current.role !== 'admin') throw new Error('No autorizado')
+    await simulateDelay(400)
+    const user = users.find(x => x.id === userId)
+    user.addresses = user.addresses.filter(a => a.id !== addressId)
     saveUsersData()
-    const { password, ...safeUser } = user
-    return safeUser
+    return user.addresses
 }
