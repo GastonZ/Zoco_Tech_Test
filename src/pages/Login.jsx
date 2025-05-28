@@ -1,16 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login as loginMock } from '../api/mockApi'
 import { useAuth } from '../context/AuthContext'
 import BeautyLoginSignup from '../components/loginSignupForm/BeautyLoginSignup'
 
 const Login = () => {
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isAuthenticated } = useAuth()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard')
+    }
+  }, [isAuthenticated, navigate])
 
   const handleSubmitUser = async (e) => {
     e.preventDefault()

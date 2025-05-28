@@ -6,6 +6,7 @@
       "email": "admin@gmail.com",
       "password": "admin",
       "role": "admin",
+      "photo": "https://i.pinimg.com/736x/54/e5/58/54e558799bef9dd570f990d3079b85ef.jpg",
       "studies": [],
       "addresses": []
     },
@@ -14,6 +15,7 @@
       "name": "Annie Leonhart",
       "email": "user@gmail.com",
       "password": "user",
+      "photo": "https://wallpapers.com/images/high/annie-leonhart-1348-x-1080-wallpaper-leij7hu1hvcyhy79.webp",
       "role": "user",
       "studies": [],
       "addresses": []

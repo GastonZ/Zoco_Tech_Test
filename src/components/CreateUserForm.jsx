@@ -23,6 +23,13 @@ const CreateUserForm = ({ initialUser, onChange, onSubmit }) => {
                 onChange={(e) => onChange({ ...initialUser, email: e.target.value })}
             />
             <RegularInput
+                type="text"
+                placeholder={"Foto de perfil (URL) *Opcional"}
+                className={inputUserClassName}
+                value={initialUser.photo}
+                onChange={(e) => onChange({ ...initialUser, photo: e.target.value })}
+            />
+            <RegularInput
                 type="password"
                 placeholder="Contraseña"
                 className={inputUserClassName}
@@ -37,7 +44,7 @@ const CreateUserForm = ({ initialUser, onChange, onSubmit }) => {
                 <option value="user">Usuario</option>
                 <option value="admin">Administrador</option>
             </select>
-            <RegularBtn 
+            <RegularBtn
                 onClick={onSubmit}
                 className="bg-green-600 text-white px-4 py-2 rounded mt-2"
                 text={"Crear usuario"}
