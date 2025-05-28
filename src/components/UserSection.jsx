@@ -25,8 +25,6 @@ const UserSection = ({
   const filteredItems = items.filter((item) =>
     item[itemLabel].toLowerCase().includes(filter.toLowerCase())
   )
-  console.log(addBtnDisabled);
-  
 
   return (
     <section className="space-y-2 flex flex-col rounded-2xl grow">
