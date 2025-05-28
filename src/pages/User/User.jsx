@@ -7,7 +7,8 @@ import {
     addAddress,
     updateAddress,
     removeStudy,
-    removeAddress
+    removeAddress,
+    updateUserProfile
 } from "../../api/mockApi"
 import UserSection from "../../components/UserSection"
 import styles from './style.module.css'
@@ -27,11 +28,15 @@ const User = () => {
     const [editingStudyId, setEditingStudyId] = useState(null)
     const [editingAddressId, setEditingAddressId] = useState(null)
 
+    const [editingProfile, setEditingProfile] = useState(false)
+    const [profileData, setProfileData] = useState({ name: '', photo: '' })
+
     useEffect(() => {
 
         const fetchProfile = async () => {
             try {
                 const data = await getUserProfile(user.email)
+                setProfileData({ name: data.name, photo: data.photo })
                 setProfile(data)
             } catch (err) {
                 console.error(err)
@@ -43,6 +48,17 @@ const User = () => {
 
         fetchProfile()
     }, [user.email])
+
+    const handleSaveProfile = async () => {
+        try {
+            const updated = await updateUserProfile(profile.id, profileData)
+            setProfile(updated)
+            setEditingProfile(false)
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
 
     const handleAddStudy = async () => {
         const updated = await addStudy(profile.id, { title: newStudy })
@@ -90,7 +106,15 @@ const User = () => {
         }
     }
 
-    if (loading) return <p className="p-4">Cargando perfil...</p>
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen ">
+                <div className="text-yellow-300 text-xl font-semibold animate-pulse">
+                    Cargando perfil...
+                </div>
+            </div>
+        )
+    }
 
 
     /* 
@@ -104,19 +128,49 @@ const User = () => {
                 <div className="bg-[#EEEDE4] flex flex-col gap-4 border p-6 rounded-2xl w-full h-full md:w-1/2">
                     <img
                         className="h-[350px] w-full object-cover rounded-xl"
-                        src="https://wallpapers.com/images/high/annie-leonhart-1348-x-1080-wallpaper-leij7hu1hvcyhy79.webp"
+                        src={editingProfile ? profileData.photo : profile.photo}
                         alt="User"
                     />
-                    <div className="flex flex-col gap-2">
-                        <h2 className="text-[#333] text-2xl font-bold mb-4">My profile</h2>
-                        <h2 className="text-lg font-semibold text-[#333] underline">Nombre: {profile.name}</h2>
-                        <p className="text-lg font-semibold text-[#333] underline">Email: {profile.email}</p>
-                        <div className="mt-4">
-                        <RegularBtn
-                            text="Editar"
+
+                    {editingProfile ? (
+                        <>
+                            <input
+                                type="text"
+                                className="border px-2 py-1 rounded"
+                                value={profileData.name}
+                                onChange={(e) => setProfileData((prev) => ({ ...prev, name: e.target.value }))}
                             />
+                            <input
+                                type="text"
+                                className="border px-2 py-1 rounded"
+                                value={profileData.photo}
+                                onChange={(e) => setProfileData((prev) => ({ ...prev, photo: e.target.value }))}
+                                placeholder="URL de imagen de perfil"
+                            />
+                            <div className="mt-4 flex gap-2">
+                                <RegularBtn
+                                    text="Guardar cambios"
+                                    onClick={handleSaveProfile}
+                                />
+                                <RegularBtn
+                                    text="Cancelar"
+                                    onClick={() => setEditingProfile(false)}
+                                />
                             </div>
-                    </div>
+                        </>
+                    ) : (
+                        <>
+                            <h2 className="text-lg font-semibold text-[#333] underline">Nombre: {profile.name}</h2>
+                            <p className="text-lg font-semibold text-[#333] underline">Email: {profile.email}</p>
+                            <div className="mt-4">
+                                <RegularBtn
+                                    text="Editar"
+                                    onClick={() => setEditingProfile(true)}
+                                />
+                            </div>
+                        </>
+                    )}
+
                 </div>
                 <div className="flex flex-col gap-4 md:gap-10 w-full md:w-1/2 h-full">
                     <div className="bg-white shadow-md rounded-2xl p-6 flex-1 flex">

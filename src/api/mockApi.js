@@ -46,6 +46,7 @@ export const createUser = async (userData) => {
     const newUser = {
         id: nextUserId++,
         ...userData,
+        photo: userData.photo || 'https://static-00.iconduck.com/assets.00/profile-default-icon-1024x1023-4u5mrj2v.png',
         studies: [],
         addresses: []
     }
@@ -123,4 +124,15 @@ export const removeAddress = async (userId, addressId) => {
     user.addresses.splice(addressIndex, 1)
     saveUsersData()
     return user.addresses
+}
+
+export const updateUserProfile = async (userId, updatedFields) => {
+    checkToken()
+    await simulateDelay(500)
+    const user = users.find(u => u.id === userId)
+    if (!user) throw new Error("Usuario no encontrado")
+    Object.assign(user, updatedFields)
+    saveUsersData()
+    const { password, ...safeUser } = user
+    return safeUser
 }
