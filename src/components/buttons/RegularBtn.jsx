@@ -13,7 +13,7 @@ const RegularBtn = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={className || 'w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50'}
+      className={className || 'w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer'}
     >
       {loading ? 'Cargando...' : text}
     </button>
