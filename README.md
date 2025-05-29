@@ -77,7 +77,7 @@ src/
 
 ## Metodología de trabajo
 
-El desarrollo fue planificado y gestionado mediante **GitHub Projects**, dividiendo el trabajo por tareas en una board tipo kanban. Esto permitió mantener el foco, orden y visibilidad del progreso.
+El desarrollo fue planificado y gestionado mediante **GitHub Projects**, dividiendo el trabajo por tareas en una board tipo kanban. Esto permitió mantener el orden y prioridades del progreso.
 
 🔗 [Ver tablero del proyecto en GitHub](https://github.com/users/GastonZ/projects/4)
 
