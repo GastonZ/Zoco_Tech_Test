@@ -153,7 +153,7 @@ const Admin = () => {
                     ) : (
                         <ul className="space-y-2">
                             {users.map((u) => (
-                                <li key={u.id} className="flex justify-between items-center border p-2 rounded">
+                                <li key={u.id} className={`flex justify-between items-center transition ${selectedUser.id === u.id ? 'border border-yellow-300 scale-[102%]' : 'border'}  p-2 rounded`}>
                                     <span>{u.name} ({u.role})</span>
                                     <RegularBtn
                                         className={"bg-yellow-300 p-1 rounded-sm text-sm font-semibold hover:bg-yellow-500 transition cursor-pointer"}
