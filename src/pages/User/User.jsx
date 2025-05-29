@@ -58,11 +58,14 @@ const User = () => {
         if (isTooLong(profileData.name, 50)) return toastError("El nombre es demasiado largo (máx. 50 caracteres)")
 
         try {
+            setLoadingRequest(true)
             const updated = await updateUserProfile(profileData)
             setProfile(updated)
             setEditingProfile(false)
             toastSuccess('Perfil actualizado !')
+            setLoadingRequest(false)
         } catch (err) {
+            setLoadingRequest(false)
             toastError(`Error al actualizar: ${err}`)
         }
     }
@@ -109,7 +112,7 @@ const User = () => {
         if (isEmpty(value)) return toastError("El estudio no puede estar vacío")
         if (isTooLong(value, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
 
-            setLoadingRequest(true)
+        setLoadingRequest(true)
         try {
             const updated = await updateStudy(studyId, { title: value })
             setProfile({ ...profile, studies: updated })
@@ -129,7 +132,7 @@ const User = () => {
         if (isEmpty(value)) return toastError("La dirección no puede estar vacía")
         if (isTooLong(value, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
 
-            setLoadingRequest(true)
+        setLoadingRequest(true)
         try {
             const updated = await updateAddress(addressId, { location: value })
             setProfile({ ...profile, addresses: updated })
@@ -209,6 +212,7 @@ const User = () => {
                             <div className="mt-4 flex gap-2">
                                 <RegularBtn
                                     text="Guardar cambios"
+                                    disabled={loadingRequest}
                                     onClick={handleSaveProfile}
                                 />
                                 <RegularBtn
