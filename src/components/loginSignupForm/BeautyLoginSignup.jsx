@@ -49,10 +49,8 @@ const BeautyLoginSignup = ({
                 <button className={styles.button2} type="submit" disabled={loading}>
                     {loading ? 'Ingresando...' : 'Ingresar'}
                 </button>
-                <button className={styles.button2} type="button">Registrarse</button>
             </div>
 
-            <button className={styles.button3} type="button">¿Olvidaste tu contraseña?</button>
         </form>
     )
 }
