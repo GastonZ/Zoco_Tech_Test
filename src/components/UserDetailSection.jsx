@@ -16,6 +16,7 @@ const UserDetailSection = ({
     setInputValue,
     fieldName,
     placeholder,
+    loadingRequest
 }) => {
 
     const [filter, setFilter] = useState("")
@@ -65,7 +66,7 @@ const UserDetailSection = ({
                                             <RegularBtn
                                                 onClick={() => onUpdate(item.id)}
                                                 className="bg-green-400 text-white px-3 py-1 rounded disabled:opacity-50 cursor-pointer hover:bg-green-500 transition"
-                                                disabled={!isChanged || !isValid}
+                                                disabled={!isChanged || !isValid || loadingRequest}
                                                 text={'👌'}
                                             />
                                             <RegularBtn
@@ -78,7 +79,7 @@ const UserDetailSection = ({
                                 ) : (
                                     <div className='flex items-center w-full justify-between gap-10 border-b border-gray-300 pb-2'>
                                         <span>{item[fieldName]}</span>
-                                        <div className='flex gap-2'>
+                                        <div className='flex gap-2 mt-2'>
                                             <RegularBtn
                                                 onClick={() => {
                                                     setEditingId(item.id)
@@ -90,6 +91,7 @@ const UserDetailSection = ({
                                             <RegularBtn
                                                 onClick={() => onDelete(item.id)}
                                                 className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer hover:bg-red-600 transition"
+                                                disabled={loadingRequest}
                                                 text="🗑️"
                                             />
                                         </div>
@@ -111,7 +113,7 @@ const UserDetailSection = ({
                 <RegularBtn
                     onClick={onAdd}
                     className={"bg-yellow-300 hover:bg-yellow-500 transition cursor-pointer text-black font-semibold px-3 py-1 rounded"}
-                    disabled={!inputValue?.trim()}
+                    disabled={!inputValue?.trim() || loadingRequest}
                     text={'Agregar'}
                 />
             </div>

@@ -24,6 +24,7 @@ const User = () => {
 
     const [newStudy, setNewStudy] = useState("")
     const [newAddress, setNewAddress] = useState("")
+    const [loadingRequest, setLoadingRequest] = useState(false)
 
     const [editStudies, setEditStudies] = useState({})
     const [editAddresses, setEditAddresses] = useState({})
@@ -72,12 +73,16 @@ const User = () => {
         if (isTooLong(newStudy, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
 
         try {
+            setLoadingRequest(true)
             const updated = await addStudy({ title: newStudy })
             setProfile({ ...profile, studies: updated })
             setNewStudy("")
             toastSuccess('Estudio agregado !')
+
+            setLoadingRequest(false)
         } catch (err) {
             toastError(`Error al agregar: ${err}`)
+            setLoadingRequest(false)
         }
     }
 
@@ -87,12 +92,15 @@ const User = () => {
         if (isTooLong(newAddress, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
 
         try {
+            setLoadingRequest(true)
             const updated = await addAddress({ location: newAddress })
             setProfile({ ...profile, addresses: updated })
             setNewAddress("")
+            setLoadingRequest(false)
             toastSuccess('Dirección agregada !')
         } catch (err) {
             toastError(`Error al agregar: ${err}`)
+            setLoadingRequest(false)
         }
     }
 
@@ -101,13 +109,16 @@ const User = () => {
         if (isEmpty(value)) return toastError("El estudio no puede estar vacío")
         if (isTooLong(value, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
 
+            setLoadingRequest(true)
         try {
             const updated = await updateStudy(studyId, { title: value })
             setProfile({ ...profile, studies: updated })
             setEditStudies((prev) => ({ ...prev, [studyId]: "" }))
             toastSuccess('Estudio actualizado !')
+            setLoadingRequest(false)
         } catch (err) {
             toastError(`Error al actualizar: ${err}`)
+            setLoadingRequest(false)
         }
     }
 
@@ -118,12 +129,15 @@ const User = () => {
         if (isEmpty(value)) return toastError("La dirección no puede estar vacía")
         if (isTooLong(value, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
 
+            setLoadingRequest(true)
         try {
             const updated = await updateAddress(addressId, { location: value })
             setProfile({ ...profile, addresses: updated })
             setEditAddresses((prev) => ({ ...prev, [addressId]: "" }))
             toastSuccess('Dirección actualizada !')
+            setLoadingRequest(false)
         } catch (err) {
+            setLoadingRequest(false)
             toastError(`Error al actualizar: ${err}`)
         }
     }
@@ -131,22 +145,28 @@ const User = () => {
 
     const handleDeleteStudy = async (studyId) => {
         try {
+            setLoadingRequest(true)
             const updated = await removeStudy(studyId)
             setProfile({ ...profile, studies: updated })
             toastSuccess('Estudio eliminado !')
+            setLoadingRequest(false)
         } catch (err) {
             console.error(err)
+            setLoadingRequest(false)
             toastError(`Error al eliminar: ${err}`)
         }
     }
 
     const handleDeleteAddress = async (addressId) => {
         try {
+            setLoadingRequest(true)
             const updated = await removeAddress(addressId)
             setProfile({ ...profile, addresses: updated })
             toastSuccess('Dirección eliminada !')
+            setLoadingRequest(false)
         } catch (err) {
             console.error(err)
+            setLoadingRequest(false)
             toastError(`Error al eliminar: ${err}`)
         }
     }
@@ -234,7 +254,7 @@ const User = () => {
                             inputValue={newStudy}
                             onInputChange={setNewStudy}
                             onAdd={handleAddStudy}
-                            addBtnDisabled={!newStudy.trim()}
+                            addBtnDisabled={!newStudy.trim() || loadingRequest}
                             placeholder="Nuevo estudio"
                         />
                     </div>
@@ -260,7 +280,7 @@ const User = () => {
                             inputValue={newAddress}
                             onInputChange={setNewAddress}
                             onAdd={handleAddAddress}
-                            addBtnDisabled={!newAddress.trim()}
+                            addBtnDisabled={!newAddress.trim() || loadingRequest}
                             placeholder="Nueva dirección"
                             itemLabel="location"
                         />

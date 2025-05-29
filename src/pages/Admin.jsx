@@ -15,6 +15,7 @@ const Admin = () => {
     const [newUser, setNewUser] = useState({ name: '', email: '', photo: '', password: '', role: 'user' })
     const [profile, setProfile] = useState(null)
     const [profileData, setProfileData] = useState({ name: '', photo: '' })
+    const [loadingRequest, setLoadingRequest] = useState(false)
 
     const [editingStudyId, setEditingStudyId] = useState(null)
     const [editStudies, setEditStudies] = useState({})
@@ -74,12 +75,15 @@ const Admin = () => {
         if (isTooLong(name, 50)) return toastError("El nombre es demasiado largo (máx. 50 caracteres)")
 
         try {
+            setLoadingRequest(true)
             await createUser(newUser)
             setNewUser({ name: '', email: '', password: '', photo: '', role: 'user' })
             fetchUsers()
             toastSuccess("Usuario creado exitosamente!")
+            setLoadingRequest(false)
         } catch (err) {
             toastError(`Error al crear usuario: ${err}`)
+            setLoadingRequest(false)
         }
     }
 
@@ -97,13 +101,16 @@ const Admin = () => {
     const handleAddStudyToUser = async (title) => {
         if (isEmpty(title)) return toastError("El estudio no puede estar vacío")
         if (isTooLong(title, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
-
+        
         try {
+            setLoadingRequest(true)
             const updated = await adminAddStudy(selectedUser.id, { title })
             setSelectedUser({ ...selectedUser, studies: updated })
             setNewStudy('')
             toastSuccess("Estudio agregado!")
+            setLoadingRequest(false)
         } catch (err) {
+            setLoadingRequest(false)
             toastError(`Error al agregar estudio: ${err}`)
         }
     }
@@ -114,11 +121,14 @@ const Admin = () => {
         if (isTooLong(title, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
 
         try {
+            setLoadingRequest(true)
             const updated = await adminUpdateStudy(selectedUser.id, id, { title })
             setSelectedUser({ ...selectedUser, studies: updated })
             setEditingStudyId(null)
             toastSuccess("Estudio actualizado!")
+            setLoadingRequest(false)
         } catch (err) {
+            setLoadingRequest(false)
             toastError(`Error al actualizar estudio: ${err}`)
         }
     }
@@ -128,11 +138,14 @@ const Admin = () => {
         if (isTooLong(location, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
 
         try {
+            setLoadingRequest(true)
             const updated = await adminAddAddress(selectedUser.id, { location })
             setSelectedUser({ ...selectedUser, addresses: updated })
             setNewAddress('')
             toastSuccess("Dirección agregada!")
+            setLoadingRequest(false)
         } catch (err) {
+            setLoadingRequest(false)
             toastError(`Error al agregar dirección: ${err}`)
         }
     }
@@ -143,11 +156,14 @@ const Admin = () => {
         if (isTooLong(location, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
 
         try {
+            setLoadingRequest(true)
             const updated = await adminUpdateAddress(selectedUser.id, id, { location })
             setSelectedUser({ ...selectedUser, addresses: updated })
             setEditingAddressId(null)
             toastSuccess("Dirección actualizada!")
+            setLoadingRequest(false)
         } catch (err) {
+            setLoadingRequest(false)
             toastError(`Error al actualizar dirección: ${err}`)
         }
     }
@@ -156,6 +172,7 @@ const Admin = () => {
         setItemToDelete(id)
         setDeleteType(type)
         setShowConfirm(true)
+        setLoadingRequest(true)
     }
 
     const handleConfirmDelete = async () => {
@@ -175,6 +192,7 @@ const Admin = () => {
             setShowConfirm(false)
             setItemToDelete(null)
             setDeleteType(null)
+            setLoadingRequest(false)
         }
     }
 
@@ -212,6 +230,7 @@ const Admin = () => {
                     initialUser={newUser}
                     onChange={handleChangeNewUser}
                     onSubmit={handleCreateUser}
+                    sendingRequest={loadingRequest}
                 />
                 <div className="bg-[#EEEDE4] p-6 rounded-xl">
                     <h3 className="font-semibold mb-2">Usuarios existentes</h3>
@@ -252,6 +271,7 @@ const Admin = () => {
                             setEditMap={setEditStudies}
                             inputValue={newStudy}
                             setInputValue={setNewStudy}
+                            loadingRequest={loadingRequest}
                         />
 
                         <UserDetailSection
@@ -268,6 +288,7 @@ const Admin = () => {
                             setEditMap={setEditAddresses}
                             inputValue={newAddress}
                             setInputValue={setNewAddress}
+                            loadingRequest={loadingRequest}
                         />
                     </div>
                 )}
