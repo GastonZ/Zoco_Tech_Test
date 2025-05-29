@@ -4,12 +4,13 @@ import CreateUserForm from '../components/CreateUserForm'
 import UserDetailSection from '../components/UserDetailSection'
 import RegularBtn from '../components/buttons/RegularBtn'
 import { toastError, toastSuccess } from '../utils/toasts'
+import { isEmpty, isValidEmail, isTooLong } from '../utils/validations'
 
 const Admin = () => {
     const [user, setUser] = useState([])
     const [users, setUsers] = useState([])
     const [selectedUser, setSelectedUser] = useState(null)
-    const [loading, setLoading] = useState(true) 
+    const [loading, setLoading] = useState(true)
     const [newUser, setNewUser] = useState({ name: '', email: '', photo: '', password: '', role: 'user' })
     const [profile, setProfile] = useState(null)
     const [profileData, setProfileData] = useState({ name: '', photo: '' })
@@ -56,10 +57,14 @@ const Admin = () => {
     }
 
     const handleCreateUser = async () => {
-        if (!newUser.name || !newUser.email || !newUser.password || !newUser.role) {
-            toastError("Faltan datos del usuario")
-            return
-        }
+        const { name, email, password, role } = newUser
+
+        if (isEmpty(name) || isEmpty(email) || isEmpty(password) || isEmpty(role)) return toastError("Faltan datos del usuario")
+
+        if (!isValidEmail(email)) return toastError("Email inválido")
+
+        if (isTooLong(name, 50)) return toastError("El nombre es demasiado largo (máx. 50 caracteres)")
+
         try {
             await createUser(newUser)
             setNewUser({ name: '', email: '', password: '', photo: '', role: 'user' })
@@ -82,6 +87,9 @@ const Admin = () => {
     }
 
     const handleAddStudyToUser = async (title) => {
+        if (isEmpty(title)) return toastError("El estudio no puede estar vacío")
+        if (isTooLong(title, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
+
         try {
             const updated = await adminAddStudy(selectedUser.id, { title })
             setSelectedUser({ ...selectedUser, studies: updated })
@@ -94,6 +102,9 @@ const Admin = () => {
 
 
     const handleUpdateStudy = async (id, title) => {
+        if (isEmpty(title)) return toastError("El estudio no puede estar vacío")
+        if (isTooLong(title, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
+
         try {
             const updated = await adminUpdateStudy(selectedUser.id, id, { title })
             setSelectedUser({ ...selectedUser, studies: updated })
@@ -119,6 +130,9 @@ const Admin = () => {
 
 
     const handleAddAddressToUser = async (location) => {
+        if (isEmpty(location)) return toastError("La dirección no puede estar vacía")
+        if (isTooLong(location, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
+
         try {
             const updated = await adminAddAddress(selectedUser.id, { location })
             setSelectedUser({ ...selectedUser, addresses: updated })
@@ -131,6 +145,9 @@ const Admin = () => {
 
 
     const handleUpdateAddress = async (id, location) => {
+        if (isEmpty(location)) return toastError("La dirección no puede estar vacía")
+        if (isTooLong(location, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
+
         try {
             const updated = await adminUpdateAddress(selectedUser.id, id, { location })
             setSelectedUser({ ...selectedUser, addresses: updated })
@@ -140,7 +157,6 @@ const Admin = () => {
             toastError(`Error al actualizar dirección: ${err}`)
         }
     }
-
 
     const handleDeleteAddress = async (id) => {
         const confirmDelete = confirm('¿Estás seguro de eliminar esta dirección?')

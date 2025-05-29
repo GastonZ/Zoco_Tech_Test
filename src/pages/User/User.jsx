@@ -15,6 +15,7 @@ import styles from './style.module.css'
 import RegularBtn from "../../components/buttons/RegularBtn"
 import RegularInput from "../../components/inputs/RegularInput"
 import { toastError, toastSuccess } from "../../utils/toasts"
+import { isEmpty, isTooLong } from "../../utils/validations"
 
 const User = () => {
     const { user } = useAuth()
@@ -52,68 +53,77 @@ const User = () => {
     }, [user.email])
 
     const handleSaveProfile = async () => {
+        if (isEmpty(profileData.name)) return toastError("El nombre no puede estar vacío")
+        if (isTooLong(profileData.name, 50)) return toastError("El nombre es demasiado largo (máx. 50 caracteres)")
+
         try {
             const updated = await updateUserProfile(profileData)
             setProfile(updated)
             setEditingProfile(false)
             toastSuccess('Perfil actualizado !')
         } catch (err) {
-            console.error(err)
             toastError(`Error al actualizar: ${err}`)
         }
     }
 
 
     const handleAddStudy = async () => {
+        if (isEmpty(newStudy)) return toastError("El estudio no puede estar vacío")
+        if (isTooLong(newStudy, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
+
         try {
             const updated = await addStudy({ title: newStudy })
             setProfile({ ...profile, studies: updated })
             setNewStudy("")
             toastSuccess('Estudio agregado !')
         } catch (err) {
-            console.error(err)
             toastError(`Error al agregar: ${err}`)
         }
     }
 
 
     const handleAddAddress = async () => {
+        if (isEmpty(newAddress)) return toastError("La dirección no puede estar vacía")
+        if (isTooLong(newAddress, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
+
         try {
             const updated = await addAddress({ location: newAddress })
             setProfile({ ...profile, addresses: updated })
             setNewAddress("")
             toastSuccess('Dirección agregada !')
         } catch (err) {
-            console.error(err)
             toastError(`Error al agregar: ${err}`)
         }
     }
 
     const handleUpdateStudy = async (studyId) => {
+        const value = editStudies[studyId]
+        if (isEmpty(value)) return toastError("El estudio no puede estar vacío")
+        if (isTooLong(value, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
+
         try {
-            const updated = await updateStudy(studyId, {
-                title: editStudies[studyId],
-            })
+            const updated = await updateStudy(studyId, { title: value })
             setProfile({ ...profile, studies: updated })
             setEditStudies((prev) => ({ ...prev, [studyId]: "" }))
             toastSuccess('Estudio actualizado !')
         } catch (err) {
-            console.error(err)
             toastError(`Error al actualizar: ${err}`)
         }
     }
 
 
+
     const handleUpdateAddress = async (addressId) => {
+        const value = editAddresses[addressId]
+        if (isEmpty(value)) return toastError("La dirección no puede estar vacía")
+        if (isTooLong(value, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
+
         try {
-            const updated = await updateAddress(addressId, {
-                location: editAddresses[addressId],
-            })
+            const updated = await updateAddress(addressId, { location: value })
             setProfile({ ...profile, addresses: updated })
             setEditAddresses((prev) => ({ ...prev, [addressId]: "" }))
             toastSuccess('Dirección actualizada !')
         } catch (err) {
-            console.error(err)
             toastError(`Error al actualizar: ${err}`)
         }
     }
