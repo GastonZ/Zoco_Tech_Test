@@ -5,6 +5,7 @@ import UserDetailSection from '../components/UserDetailSection'
 import RegularBtn from '../components/buttons/RegularBtn'
 import { toastError, toastSuccess } from '../utils/toasts'
 import { isEmpty, isValidEmail, isTooLong } from '../utils/validations'
+import ConfirmModal from '../components/modals/ConfirmModal'
 
 const Admin = () => {
     const [user, setUser] = useState([])
@@ -22,6 +23,11 @@ const Admin = () => {
     const [editingAddressId, setEditingAddressId] = useState(null)
     const [editAddresses, setEditAddresses] = useState({})
     const [newAddress, setNewAddress] = useState("")
+
+    const [showConfirm, setShowConfirm] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState(null)
+    const [deleteType, setDeleteType] = useState(null)
+
 
     useEffect(() => {
 
@@ -55,6 +61,8 @@ const Admin = () => {
             setLoading(false)
         }
     }
+
+
 
     const handleCreateUser = async () => {
         const { name, email, password, role } = newUser
@@ -115,20 +123,6 @@ const Admin = () => {
         }
     }
 
-
-    const handleDeleteStudy = async (id) => {
-        const confirmDelete = confirm('¿Estás seguro de eliminar este estudio?')
-        if (!confirmDelete) return
-        try {
-            const updated = await adminRemoveStudy(selectedUser.id, id)
-            setSelectedUser({ ...selectedUser, studies: updated })
-            toastSuccess("Estudio eliminado!")
-        } catch (err) {
-            toastError(`Error al eliminar estudio: ${err}`)
-        }
-    }
-
-
     const handleAddAddressToUser = async (location) => {
         if (isEmpty(location)) return toastError("La dirección no puede estar vacía")
         if (isTooLong(location, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
@@ -158,15 +152,29 @@ const Admin = () => {
         }
     }
 
-    const handleDeleteAddress = async (id) => {
-        const confirmDelete = confirm('¿Estás seguro de eliminar esta dirección?')
-        if (!confirmDelete) return
+    const handleDeleteRequest = (id, type) => {
+        setItemToDelete(id)
+        setDeleteType(type)
+        setShowConfirm(true)
+    }
+
+    const handleConfirmDelete = async () => {
         try {
-            const updated = await adminRemoveAddress(selectedUser.id, id)
-            setSelectedUser({ ...selectedUser, addresses: updated })
-            toastSuccess("Dirección eliminada!")
+            if (deleteType === 'study') {
+                const updated = await adminRemoveStudy(selectedUser.id, itemToDelete)
+                setSelectedUser({ ...selectedUser, studies: updated })
+                toastSuccess("Estudio eliminado!")
+            } else if (deleteType === 'address') {
+                const updated = await adminRemoveAddress(selectedUser.id, itemToDelete)
+                setSelectedUser({ ...selectedUser, addresses: updated })
+                toastSuccess("Dirección eliminada!")
+            }
         } catch (err) {
-            toastError(`Error al eliminar dirección: ${err}`)
+            toastError(`Error al eliminar ${deleteType}: ${err}`)
+        } finally {
+            setShowConfirm(false)
+            setItemToDelete(null)
+            setDeleteType(null)
         }
     }
 
@@ -237,7 +245,7 @@ const Admin = () => {
                             placeholder="Nuevo estudio"
                             onAdd={() => handleAddStudyToUser(newStudy)}
                             onUpdate={(id) => handleUpdateStudy(id, editStudies[id])}
-                            onDelete={handleDeleteStudy}
+                            onDelete={(id) => handleDeleteRequest(id, 'study')}
                             editingId={editingStudyId}
                             setEditingId={setEditingStudyId}
                             editMap={editStudies}
@@ -253,7 +261,7 @@ const Admin = () => {
                             placeholder="Nueva dirección"
                             onAdd={() => handleAddAddressToUser(newAddress)}
                             onUpdate={(id) => handleUpdateAddress(id, editAddresses[id])}
-                            onDelete={handleDeleteAddress}
+                            onDelete={(id) => handleDeleteRequest(id, 'address')}
                             editingId={editingAddressId}
                             setEditingId={setEditingAddressId}
                             editMap={editAddresses}
@@ -264,6 +272,12 @@ const Admin = () => {
                     </div>
                 )}
             </div>
+            <ConfirmModal
+                isOpen={showConfirm}
+                message="Esta acción es irreversible"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setShowConfirm(false)}
+            />
         </div>
     )
 }
