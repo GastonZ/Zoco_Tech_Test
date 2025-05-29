@@ -15,7 +15,9 @@ const loadInitialUsers = async () => {
     }
 }
 
-await loadInitialUsers()
+export const initUsers = async () => {
+  await loadInitialUsers()
+}
 
 let nextUserId = users.length + 1
 
