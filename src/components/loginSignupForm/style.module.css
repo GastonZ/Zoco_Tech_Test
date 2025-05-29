@@ -11,6 +11,13 @@
     border: 1px solid #F4EC10;
 }
 
+@media screen and (max-width: 345px) {
+    .form {
+        padding-left: 1em;
+        padding-right: 1em;
+    }
+}
+
 .form:hover {
     transform: scale(1.05);
 

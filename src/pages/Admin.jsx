@@ -112,6 +112,16 @@ const Admin = () => {
         setSelectedUser({ ...selectedUser, addresses: updated })
     }
 
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen ">
+                <div className="text-yellow-300 text-xl font-semibold animate-pulse">
+                    Cargando perfil...
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="p-6 md:flex md:gap-6 min-h-screen max-w-6xl w-full justify-center mx-auto">
 

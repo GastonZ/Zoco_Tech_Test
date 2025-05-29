@@ -117,12 +117,6 @@ const User = () => {
         )
     }
 
-
-    /* 
-    * Annie img
-    https://wallpapers.com/images/high/annie-leonhart-1348-x-1080-wallpaper-leij7hu1hvcyhy79.webp
-    */
-
     return (
         <div className="p-4 flex justify-center items-center min-h-screen">
             <div className="flex flex-col items-center md:flex-row gap-4 md:gap-10 w-full max-w-6xl md:h-[800px]">
