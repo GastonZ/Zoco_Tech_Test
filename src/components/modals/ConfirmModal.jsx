@@ -8,7 +8,7 @@ const ConfirmModal = ({ isOpen, message, onConfirm, onCancel }) => {
         <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-sm text-center space-y-4">
                 <h3 className="text-lg font-semibold">¿Estás seguro?</h3>
-                <p>{message || 'Esta acción no se puede deshacer.'}</p>
+                <p>{message}</p>
                 <div className="flex justify-center gap-4 mt-4">
                     <button
                         onClick={onCancel}
