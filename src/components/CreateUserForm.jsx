@@ -2,7 +2,7 @@ import React from 'react'
 import RegularInput from './inputs/RegularInput';
 import RegularBtn from './buttons/RegularBtn';
 
-const CreateUserForm = ({ initialUser, onChange, onSubmit }) => {
+const CreateUserForm = ({ initialUser, onChange, onSubmit, sendingRequest }) => {
 
 
     return (
@@ -41,6 +41,7 @@ const CreateUserForm = ({ initialUser, onChange, onSubmit }) => {
             </select>
             <RegularBtn
                 onClick={onSubmit}
+                disabled={sendingRequest}
                 className="bg-yellow-300 text-black font-semibold hover:bg-yellow-500 cursor-pointer transition px-4 py-2 rounded mt-2"
                 text={"Crear usuario"}
             />

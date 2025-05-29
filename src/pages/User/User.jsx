@@ -14,6 +14,8 @@ import UserSection from "../../components/UserSection"
 import styles from './style.module.css'
 import RegularBtn from "../../components/buttons/RegularBtn"
 import RegularInput from "../../components/inputs/RegularInput"
+import { toastError, toastSuccess } from "../../utils/toasts"
+import { isEmpty, isTooLong } from "../../utils/validations"
 
 const User = () => {
     const { user } = useAuth()
@@ -22,6 +24,7 @@ const User = () => {
 
     const [newStudy, setNewStudy] = useState("")
     const [newAddress, setNewAddress] = useState("")
+    const [loadingRequest, setLoadingRequest] = useState(false)
 
     const [editStudies, setEditStudies] = useState({})
     const [editAddresses, setEditAddresses] = useState({})
@@ -51,61 +54,123 @@ const User = () => {
     }, [user.email])
 
     const handleSaveProfile = async () => {
+        if (isEmpty(profileData.name)) return toastError("El nombre no puede estar vacío")
+        if (isTooLong(profileData.name, 50)) return toastError("El nombre es demasiado largo (máx. 50 caracteres)")
+
         try {
             const updated = await updateUserProfile(profileData)
             setProfile(updated)
             setEditingProfile(false)
+            toastSuccess('Perfil actualizado !')
         } catch (err) {
-            console.error(err)
+            toastError(`Error al actualizar: ${err}`)
         }
     }
 
 
     const handleAddStudy = async () => {
-        const updated = await addStudy({ title: newStudy })
-        setProfile({ ...profile, studies: updated })
-        setNewStudy("")
+        if (isEmpty(newStudy)) return toastError("El estudio no puede estar vacío")
+        if (isTooLong(newStudy, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
+
+        try {
+            setLoadingRequest(true)
+            const updated = await addStudy({ title: newStudy })
+            setProfile({ ...profile, studies: updated })
+            setNewStudy("")
+            toastSuccess('Estudio agregado !')
+
+            setLoadingRequest(false)
+        } catch (err) {
+            toastError(`Error al agregar: ${err}`)
+            setLoadingRequest(false)
+        }
     }
 
+
     const handleAddAddress = async () => {
-        const updated = await addAddress( { location: newAddress })
-        setProfile({ ...profile, addresses: updated })
-        setNewAddress("")
+        if (isEmpty(newAddress)) return toastError("La dirección no puede estar vacía")
+        if (isTooLong(newAddress, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
+
+        try {
+            setLoadingRequest(true)
+            const updated = await addAddress({ location: newAddress })
+            setProfile({ ...profile, addresses: updated })
+            setNewAddress("")
+            setLoadingRequest(false)
+            toastSuccess('Dirección agregada !')
+        } catch (err) {
+            toastError(`Error al agregar: ${err}`)
+            setLoadingRequest(false)
+        }
     }
 
     const handleUpdateStudy = async (studyId) => {
-        const updated = await updateStudy( studyId, {
-            title: editStudies[studyId],
-        })
-        setProfile({ ...profile, studies: updated })
-        setEditStudies((prev) => ({ ...prev, [studyId]: "" }))
+        const value = editStudies[studyId]
+        if (isEmpty(value)) return toastError("El estudio no puede estar vacío")
+        if (isTooLong(value, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
+
+            setLoadingRequest(true)
+        try {
+            const updated = await updateStudy(studyId, { title: value })
+            setProfile({ ...profile, studies: updated })
+            setEditStudies((prev) => ({ ...prev, [studyId]: "" }))
+            toastSuccess('Estudio actualizado !')
+            setLoadingRequest(false)
+        } catch (err) {
+            toastError(`Error al actualizar: ${err}`)
+            setLoadingRequest(false)
+        }
     }
 
+
+
     const handleUpdateAddress = async (addressId) => {
-        const updated = await updateAddress(addressId, {
-            location: editAddresses[addressId],
-        })
-        setProfile({ ...profile, addresses: updated })
-        setEditAddresses((prev) => ({ ...prev, [addressId]: "" }))
+        const value = editAddresses[addressId]
+        if (isEmpty(value)) return toastError("La dirección no puede estar vacía")
+        if (isTooLong(value, 120)) return toastError("La dirección es demasiado larga (máx. 120 caracteres)")
+
+            setLoadingRequest(true)
+        try {
+            const updated = await updateAddress(addressId, { location: value })
+            setProfile({ ...profile, addresses: updated })
+            setEditAddresses((prev) => ({ ...prev, [addressId]: "" }))
+            toastSuccess('Dirección actualizada !')
+            setLoadingRequest(false)
+        } catch (err) {
+            setLoadingRequest(false)
+            toastError(`Error al actualizar: ${err}`)
+        }
     }
+
 
     const handleDeleteStudy = async (studyId) => {
         try {
-            const updated = await removeStudy( studyId)
+            setLoadingRequest(true)
+            const updated = await removeStudy(studyId)
             setProfile({ ...profile, studies: updated })
+            toastSuccess('Estudio eliminado !')
+            setLoadingRequest(false)
         } catch (err) {
             console.error(err)
+            setLoadingRequest(false)
+            toastError(`Error al eliminar: ${err}`)
         }
     }
 
-    const handleDeleteAddress = async (studyId) => {
+    const handleDeleteAddress = async (addressId) => {
         try {
-            const updated = await removeAddress( studyId)
+            setLoadingRequest(true)
+            const updated = await removeAddress(addressId)
             setProfile({ ...profile, addresses: updated })
+            toastSuccess('Dirección eliminada !')
+            setLoadingRequest(false)
         } catch (err) {
             console.error(err)
+            setLoadingRequest(false)
+            toastError(`Error al eliminar: ${err}`)
         }
     }
+
 
     if (loading) {
         return (
@@ -116,12 +181,6 @@ const User = () => {
             </div>
         )
     }
-
-
-    /* 
-    * Annie img
-    https://wallpapers.com/images/high/annie-leonhart-1348-x-1080-wallpaper-leij7hu1hvcyhy79.webp
-    */
 
     return (
         <div className="p-4 flex justify-center items-center min-h-screen">
@@ -195,7 +254,7 @@ const User = () => {
                             inputValue={newStudy}
                             onInputChange={setNewStudy}
                             onAdd={handleAddStudy}
-                            addBtnDisabled={!newStudy.trim()}
+                            addBtnDisabled={!newStudy.trim() || loadingRequest}
                             placeholder="Nuevo estudio"
                         />
                     </div>
@@ -221,7 +280,7 @@ const User = () => {
                             inputValue={newAddress}
                             onInputChange={setNewAddress}
                             onAdd={handleAddAddress}
-                            addBtnDisabled={!newAddress.trim()}
+                            addBtnDisabled={!newAddress.trim() || loadingRequest}
                             placeholder="Nueva dirección"
                             itemLabel="location"
                         />
