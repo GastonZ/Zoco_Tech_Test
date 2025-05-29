@@ -16,10 +16,16 @@ const loadInitialUsers = async () => {
 }
 
 export const initUsers = async () => {
-  await loadInitialUsers()
+    await loadInitialUsers()
 }
 
 let nextUserId = users.length + 1
+
+const getNextUserId = () => {
+    if (users.length === 0) return 1
+    const maxId = Math.max(...users.map(u => u.id || 0))
+    return maxId + 1
+}
 
 const saveUsersData = () => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(users))
@@ -52,7 +58,7 @@ export const createUser = async (userData) => {
     if (emailExists) throw new Error('El email ya existe')
 
     const newUser = {
-        id: nextUserId++,
+        id: getNextUserId(),
         ...userData,
         photo: userData.photo || 'https://static-00.iconduck.com/assets.00/profile-default-icon-1024x1023-4u5mrj2v.png',
         studies: [],
