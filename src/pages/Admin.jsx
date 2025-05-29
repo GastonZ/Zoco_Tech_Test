@@ -3,12 +3,13 @@ import { getAllUsers, getUserProfile, createUser, adminAddStudy, adminUpdateStud
 import CreateUserForm from '../components/CreateUserForm'
 import UserDetailSection from '../components/UserDetailSection'
 import RegularBtn from '../components/buttons/RegularBtn'
+import { toastError, toastSuccess } from '../utils/toasts'
 
 const Admin = () => {
     const [user, setUser] = useState([])
     const [users, setUsers] = useState([])
     const [selectedUser, setSelectedUser] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true) 
     const [newUser, setNewUser] = useState({ name: '', email: '', photo: '', password: '', role: 'user' })
     const [profile, setProfile] = useState(null)
     const [profileData, setProfileData] = useState({ name: '', photo: '' })
@@ -56,13 +57,19 @@ const Admin = () => {
 
     const handleCreateUser = async () => {
         if (!newUser.name || !newUser.email || !newUser.password || !newUser.role) {
-            console.error("Faltan datos del usuario")
+            toastError("Faltan datos del usuario")
             return
         }
-        await createUser(newUser)
-        setNewUser({ name: '', email: '', password: '', role: 'user' })
-        fetchUsers()
+        try {
+            await createUser(newUser)
+            setNewUser({ name: '', email: '', password: '', photo: '', role: 'user' })
+            fetchUsers()
+            toastSuccess("Usuario creado exitosamente!")
+        } catch (err) {
+            toastError(`Error al crear usuario: ${err}`)
+        }
     }
+
 
     const handleChangeNewUser = (updatedUser) => {
         setNewUser(updatedUser)
@@ -75,42 +82,78 @@ const Admin = () => {
     }
 
     const handleAddStudyToUser = async (title) => {
-        const updated = await adminAddStudy(selectedUser.id, { title })
-        setSelectedUser({ ...selectedUser, studies: updated })
-        setNewStudy('')
+        try {
+            const updated = await adminAddStudy(selectedUser.id, { title })
+            setSelectedUser({ ...selectedUser, studies: updated })
+            setNewStudy('')
+            toastSuccess("Estudio agregado!")
+        } catch (err) {
+            toastError(`Error al agregar estudio: ${err}`)
+        }
     }
 
+
     const handleUpdateStudy = async (id, title) => {
-        const updated = await adminUpdateStudy(selectedUser.id, id, { title })
-        setSelectedUser({ ...selectedUser, studies: updated })
-        setEditingStudyId(null)
+        try {
+            const updated = await adminUpdateStudy(selectedUser.id, id, { title })
+            setSelectedUser({ ...selectedUser, studies: updated })
+            setEditingStudyId(null)
+            toastSuccess("Estudio actualizado!")
+        } catch (err) {
+            toastError(`Error al actualizar estudio: ${err}`)
+        }
     }
+
 
     const handleDeleteStudy = async (id) => {
         const confirmDelete = confirm('¿Estás seguro de eliminar este estudio?')
         if (!confirmDelete) return
-        const updated = await adminRemoveStudy(selectedUser.id, id)
-        setSelectedUser({ ...selectedUser, studies: updated })
+        try {
+            const updated = await adminRemoveStudy(selectedUser.id, id)
+            setSelectedUser({ ...selectedUser, studies: updated })
+            toastSuccess("Estudio eliminado!")
+        } catch (err) {
+            toastError(`Error al eliminar estudio: ${err}`)
+        }
     }
+
 
     const handleAddAddressToUser = async (location) => {
-        const updated = await adminAddAddress(selectedUser.id, { location })
-        setSelectedUser({ ...selectedUser, addresses: updated })
-        setNewAddress('')
+        try {
+            const updated = await adminAddAddress(selectedUser.id, { location })
+            setSelectedUser({ ...selectedUser, addresses: updated })
+            setNewAddress('')
+            toastSuccess("Dirección agregada!")
+        } catch (err) {
+            toastError(`Error al agregar dirección: ${err}`)
+        }
     }
 
+
     const handleUpdateAddress = async (id, location) => {
-        const updated = await adminUpdateAddress(selectedUser.id, id, { location })
-        setSelectedUser({ ...selectedUser, addresses: updated })
-        setEditingAddressId(null)
+        try {
+            const updated = await adminUpdateAddress(selectedUser.id, id, { location })
+            setSelectedUser({ ...selectedUser, addresses: updated })
+            setEditingAddressId(null)
+            toastSuccess("Dirección actualizada!")
+        } catch (err) {
+            toastError(`Error al actualizar dirección: ${err}`)
+        }
     }
+
 
     const handleDeleteAddress = async (id) => {
         const confirmDelete = confirm('¿Estás seguro de eliminar esta dirección?')
         if (!confirmDelete) return
-        const updated = await adminRemoveAddress(selectedUser.id, id)
-        setSelectedUser({ ...selectedUser, addresses: updated })
+        try {
+            const updated = await adminRemoveAddress(selectedUser.id, id)
+            setSelectedUser({ ...selectedUser, addresses: updated })
+            toastSuccess("Dirección eliminada!")
+        } catch (err) {
+            toastError(`Error al eliminar dirección: ${err}`)
+        }
     }
+
 
     if (loading) {
         return (
@@ -125,7 +168,7 @@ const Admin = () => {
     return (
         <div className="p-6 md:flex md:gap-6 min-h-screen max-w-6xl w-full justify-center mx-auto">
 
-            <aside className="bg-[#EEEDE4] p-4 rounded-xl w-full md:max-w-[250px] flex flex-col items-center text-center">
+            <aside className="bg-[#EEEDE4] p-4 rounded-xl w-full md:max-w-[250px] max-h-[400px] flex flex-col items-center text-center">
                 {profile && (
                     <>
                         <img

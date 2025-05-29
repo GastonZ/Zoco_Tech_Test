@@ -14,6 +14,7 @@ import UserSection from "../../components/UserSection"
 import styles from './style.module.css'
 import RegularBtn from "../../components/buttons/RegularBtn"
 import RegularInput from "../../components/inputs/RegularInput"
+import { toastError, toastSuccess } from "../../utils/toasts"
 
 const User = () => {
     const { user } = useAuth()
@@ -55,57 +56,91 @@ const User = () => {
             const updated = await updateUserProfile(profileData)
             setProfile(updated)
             setEditingProfile(false)
+            toastSuccess('Perfil actualizado !')
         } catch (err) {
             console.error(err)
+            toastError(`Error al actualizar: ${err}`)
         }
     }
 
 
     const handleAddStudy = async () => {
-        const updated = await addStudy({ title: newStudy })
-        setProfile({ ...profile, studies: updated })
-        setNewStudy("")
+        try {
+            const updated = await addStudy({ title: newStudy })
+            setProfile({ ...profile, studies: updated })
+            setNewStudy("")
+            toastSuccess('Estudio agregado !')
+        } catch (err) {
+            console.error(err)
+            toastError(`Error al agregar: ${err}`)
+        }
     }
 
+
     const handleAddAddress = async () => {
-        const updated = await addAddress( { location: newAddress })
-        setProfile({ ...profile, addresses: updated })
-        setNewAddress("")
+        try {
+            const updated = await addAddress({ location: newAddress })
+            setProfile({ ...profile, addresses: updated })
+            setNewAddress("")
+            toastSuccess('Dirección agregada !')
+        } catch (err) {
+            console.error(err)
+            toastError(`Error al agregar: ${err}`)
+        }
     }
 
     const handleUpdateStudy = async (studyId) => {
-        const updated = await updateStudy( studyId, {
-            title: editStudies[studyId],
-        })
-        setProfile({ ...profile, studies: updated })
-        setEditStudies((prev) => ({ ...prev, [studyId]: "" }))
+        try {
+            const updated = await updateStudy(studyId, {
+                title: editStudies[studyId],
+            })
+            setProfile({ ...profile, studies: updated })
+            setEditStudies((prev) => ({ ...prev, [studyId]: "" }))
+            toastSuccess('Estudio actualizado !')
+        } catch (err) {
+            console.error(err)
+            toastError(`Error al actualizar: ${err}`)
+        }
     }
 
+
     const handleUpdateAddress = async (addressId) => {
-        const updated = await updateAddress(addressId, {
-            location: editAddresses[addressId],
-        })
-        setProfile({ ...profile, addresses: updated })
-        setEditAddresses((prev) => ({ ...prev, [addressId]: "" }))
+        try {
+            const updated = await updateAddress(addressId, {
+                location: editAddresses[addressId],
+            })
+            setProfile({ ...profile, addresses: updated })
+            setEditAddresses((prev) => ({ ...prev, [addressId]: "" }))
+            toastSuccess('Dirección actualizada !')
+        } catch (err) {
+            console.error(err)
+            toastError(`Error al actualizar: ${err}`)
+        }
     }
+
 
     const handleDeleteStudy = async (studyId) => {
         try {
-            const updated = await removeStudy( studyId)
+            const updated = await removeStudy(studyId)
             setProfile({ ...profile, studies: updated })
+            toastSuccess('Estudio eliminado !')
         } catch (err) {
             console.error(err)
+            toastError(`Error al eliminar: ${err}`)
         }
     }
 
-    const handleDeleteAddress = async (studyId) => {
+    const handleDeleteAddress = async (addressId) => {
         try {
-            const updated = await removeAddress( studyId)
+            const updated = await removeAddress(addressId)
             setProfile({ ...profile, addresses: updated })
+            toastSuccess('Dirección eliminada !')
         } catch (err) {
             console.error(err)
+            toastError(`Error al eliminar: ${err}`)
         }
     }
+
 
     if (loading) {
         return (
