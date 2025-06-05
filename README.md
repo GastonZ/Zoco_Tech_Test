@@ -66,7 +66,7 @@ src/
 ├── components/     # Componentes reutilizables (modales, inputs, botones)
 ├── context/        # Contexto de autenticación
 ├── layout/         # Layout global (envoltorio con Toast y estilos base)
-├── pages/          # Vistas: Login, Dashboard (Admin/User)
+├── pages/          # Vistas: Login, Admin y User
 ├── routes/         # Rutas protegidas
 ├── utils/          # Validaciones, notificaciones y helpers
 ├── App.jsx         # Ruteo principal de la aplicación
