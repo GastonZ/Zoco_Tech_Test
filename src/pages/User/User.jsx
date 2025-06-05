@@ -21,6 +21,7 @@ const User = () => {
     const { user } = useAuth()
     const [profile, setProfile] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [nameError, setNameError] = useState('')
 
     const [newStudy, setNewStudy] = useState("")
     const [newAddress, setNewAddress] = useState("")
@@ -201,8 +202,13 @@ const User = () => {
                             <RegularInput
                                 type="text"
                                 value={profileData.name}
-                                onChange={(e) => setProfileData((prev) => ({ ...prev, name: e.target.value }))}
+                                onChange={(e) => {
+                                    const value = e.target.value
+                                    setProfileData((prev) => ({ ...prev, name: value }))
+                                    setNameError(isEmpty(value) ? "El nombre no puede estar vacío" : isTooLong(value, 50) ? "Máx. 50 caracteres" : "")
+                                }}
                             />
+                            {nameError && <p className="text-red-600 text-sm">{nameError}</p>}
                             <span className="text-sm font-semibold">Foto de perfil (URL)</span>
                             <RegularInput
                                 value={profileData.photo}
