@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
 import Admin from './pages/Admin'
 import User from './pages/User/User'
+import NotFound from './pages/Not/NotFound'
 import './App.css'
 import PrivateRoute from './routes/PrivateRoute'
 import { initUsers } from './api/mockApi'
@@ -42,6 +43,7 @@ function App() {
         <Route path='/' element={<Login />} />
         <Route path='/admin' element={<PrivateRoute requiredRole="admin"><Admin /></PrivateRoute>} />
         <Route path='/user' element={<PrivateRoute requiredRole="user"><User /></PrivateRoute>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   )
