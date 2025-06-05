@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import RegularInput from './inputs/RegularInput'
 import RegularBtn from './buttons/RegularBtn'
 import ConfirmModal from './modals/ConfirmModal'
+import UseFormState from '../hooks/UseFormState'
+import { isEmpty, isTooLong } from '../utils/validations'
 
 const UserSection = ({
   title,
@@ -21,14 +23,46 @@ const UserSection = ({
   itemKey = 'id',
   itemLabel = 'title',
 }) => {
-  const [filter, setFilter] = useState('')
+  const {
+    state,
+    setField,
+  } = UseFormState({
+    filter: '',
+    showConfirm: false,
+    itemToDelete: null,
+    inputError: '',
+    editErrors: {},
+  })
+
+  const handleInputChange = (value) => {
+    onInputChange(value)
+
+    if (isEmpty(value)) {
+      setField('inputError', 'Este campo no puede estar vacío')
+    } else if (isTooLong(value, 50)) {
+      setField('inputError', 'Máximo 50 caracteres')
+    } else {
+      setField('inputError', '')
+    }
+  }
+
+  const handleEditChange = (id, value) => {
+    onEditChange(id, value)
+
+    if (isEmpty(value)) {
+      setField('editErrors', { ...state.editErrors, [id]: 'No puede estar vacío' })
+    } else if (isTooLong(value, 50)) {
+      setField('editErrors', { ...state.editErrors, [id]: 'Máximo 50 caracteres' })
+    } else {
+      const updated = { ...state.editErrors }
+      delete updated[id]
+      setField('editErrors', updated)
+    }
+  }
 
   const filteredItems = items.filter((item) =>
-    item[itemLabel].toLowerCase().includes(filter.toLowerCase())
+    item[itemLabel].toLowerCase().includes(state.filter.toLowerCase())
   )
-
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [itemToDelete, setItemToDelete] = useState(null)
 
   return (
     <section className="space-y-2 flex flex-col rounded-2xl grow">
@@ -36,11 +70,12 @@ const UserSection = ({
 
       <RegularInput
         placeholder={`Filtrar ${title.toLowerCase()}...`}
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
+        value={state.filter}
+        onChange={(e) => setField('filter', e.target.value)}
         className="mb-2"
       />
-      <div className='flex flex-col justify-between h-full'>
+
+      <div className="flex flex-col justify-between h-full">
         <div className="overflow-y-auto max-h-[150px] pr-2">
           <ul className="space-y-2">
             {filteredItems.map((item) => {
@@ -48,7 +83,7 @@ const UserSection = ({
               const label = item[itemLabel]
               const currentValue = editValues[id] ?? label
               const changed = currentValue !== label
-              const valid = currentValue.trim() !== ''
+              const valid = !isEmpty(currentValue)
 
               return (
                 <li key={id} className="flex items-center justify-between gap-2 text-sm border-b border-b-gray-300 pb-2">
@@ -57,8 +92,11 @@ const UserSection = ({
                       <RegularInput
                         type="text"
                         value={currentValue}
-                        onChange={(e) => onEditChange(id, e.target.value)}
+                        onChange={(e) => handleEditChange(id, e.target.value)}
                       />
+                      {state.editErrors[id] && (
+                        <span className="text-xs text-red-500 -mt-1">{state.editErrors[id]}</span>
+                      )}
                       <div className="flex gap-2 justify-end">
                         <RegularBtn
                           text="Guardar"
@@ -84,8 +122,8 @@ const UserSection = ({
                       <RegularBtn
                         text="🗑️"
                         onClick={() => {
-                          setItemToDelete(id)
-                          setShowConfirm(true)
+                          setField('itemToDelete', id)
+                          setField('showConfirm', true)
                         }}
                         className="text-xs px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded-sm cursor-pointer transition"
                       />
@@ -99,11 +137,14 @@ const UserSection = ({
 
         <div className="flex gap-2 mt-2 flex-col">
           <RegularInput
-            placeholder={''}
+            placeholder=""
             label={placeholder}
             value={inputValue}
-            onChange={(e) => onInputChange(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
           />
+          {state.inputError && (
+            <span className="text-xs text-red-500 -mt-1">{state.inputError}</span>
+          )}
           <RegularBtn
             text="Agregar"
             onClick={onAdd}
@@ -112,14 +153,15 @@ const UserSection = ({
           />
         </div>
       </div>
+
       <ConfirmModal
-        isOpen={showConfirm}
+        isOpen={state.showConfirm}
         message="Esta acción es irreversible"
         onConfirm={() => {
-          onDelete(itemToDelete)
-          setShowConfirm(false)
+          onDelete(state.itemToDelete)
+          setField('showConfirm', false)
         }}
-        onCancel={() => setShowConfirm(false)}
+        onCancel={() => setField('showConfirm', false)}
       />
     </section>
   )
