@@ -6,6 +6,7 @@ import RegularBtn from '../components/buttons/RegularBtn'
 import { toastError, toastSuccess } from '../utils/toasts'
 import { isEmpty, isValidEmail, isTooLong } from '../utils/validations'
 import ConfirmModal from '../components/modals/ConfirmModal'
+import LogoutBtn from '../components/buttons/LogoutBtn'
 
 const Admin = () => {
     const [user, setUser] = useState([])
@@ -101,7 +102,7 @@ const Admin = () => {
     const handleAddStudyToUser = async (title) => {
         if (isEmpty(title)) return toastError("El estudio no puede estar vacío")
         if (isTooLong(title, 100)) return toastError("El estudio es demasiado largo (máx. 100 caracteres)")
-        
+
         try {
             setLoadingRequest(true)
             const updated = await adminAddStudy(selectedUser.id, { title })
@@ -208,97 +209,102 @@ const Admin = () => {
     }
 
     return (
-        <div className="p-6 md:flex md:gap-6 min-h-screen max-w-6xl w-full justify-center mx-auto">
+        <div>
+            <div className="flex justify-end p-4">
+                <LogoutBtn />
+            </div>
+            <div className="p-6 md:flex md:gap-6 min-h-screen max-w-6xl w-full justify-center mx-auto">
 
-            <aside className="bg-[#EEEDE4] p-4 rounded-xl w-full md:max-w-[250px] max-h-[400px] flex flex-col items-center text-center">
-                {profile && (
-                    <>
-                        <img
-                            src={profile.photo}
-                            alt="Admin"
-                            className="h-[100x] w-[150px] rounded-full object-cover mb-4"
-                        />
-                        <h2 className="font-bold text-lg">{profile.name}</h2>
-                        <p className="text-sm text-gray-600">{profile.email}</p>
-                        <p className="text-sm text-gray-500 mt-1">Rol: {profile.role}</p>
-                    </>
-                )}
-            </aside>
-            <div className="flex-1 space-y-6 mt-6 md:mt-0">
-                <h2 className="text-2xl font-bold text-[#EEEDE4]">Panel de Administración</h2>
-                <CreateUserForm
-                    initialUser={newUser}
-                    onChange={handleChangeNewUser}
-                    onSubmit={handleCreateUser}
-                    sendingRequest={loadingRequest}
-                />
-                <div className="bg-[#EEEDE4] p-6 rounded-xl">
-                    <h3 className="font-semibold mb-2">Usuarios existentes</h3>
-                    {loading ? (
-                        <p>Cargando...</p>
-                    ) : (
-                        <ul className="space-y-2">
-                            {users.map((u) => (
-                                <li key={u.id} className={`flex justify-between items-center transition ${selectedUser?.id === u.id ? 'border border-yellow-300 scale-[102%]' : 'border'}  p-2 rounded`}>
-                                    <span>{u.name} ({u.role})</span>
-                                    <RegularBtn
-                                        className={"bg-yellow-300 p-1 rounded-sm text-sm font-semibold hover:bg-yellow-500 transition cursor-pointer"}
-                                        onClick={() => handleSelectUser(u.email)}
-                                        text={'Administrar'}
-                                    />
-                                </li>
-                            ))}
-                        </ul>
+                <aside className="bg-[#EEEDE4] p-4 rounded-xl w-full md:max-w-[250px] max-h-[400px] flex flex-col items-center text-center">
+                    {profile && (
+                        <>
+                            <img
+                                src={profile.photo}
+                                alt="Admin"
+                                className="h-[100x] w-[150px] rounded-full object-cover mb-4"
+                            />
+                            <h2 className="font-bold text-lg">{profile.name}</h2>
+                            <p className="text-sm text-gray-600">{profile.email}</p>
+                            <p className="text-sm text-gray-500 mt-1">Rol: {profile.role}</p>
+                        </>
+                    )}
+                </aside>
+                <div className="flex-1 space-y-6 mt-6 md:mt-0">
+                    <h2 className="text-2xl font-bold text-[#EEEDE4]">Panel de Administración</h2>
+                    <CreateUserForm
+                        initialUser={newUser}
+                        onChange={handleChangeNewUser}
+                        onSubmit={handleCreateUser}
+                        sendingRequest={loadingRequest}
+                    />
+                    <div className="bg-[#EEEDE4] p-6 rounded-xl">
+                        <h3 className="font-semibold mb-2">Usuarios existentes</h3>
+                        {loading ? (
+                            <p>Cargando...</p>
+                        ) : (
+                            <ul className="space-y-2">
+                                {users.map((u) => (
+                                    <li key={u.id} className={`flex justify-between items-center transition ${selectedUser?.id === u.id ? 'border border-yellow-300 scale-[102%]' : 'border'}  p-2 rounded`}>
+                                        <span>{u.name} ({u.role})</span>
+                                        <RegularBtn
+                                            className={"bg-yellow-300 p-1 rounded-sm text-sm font-semibold hover:bg-yellow-500 transition cursor-pointer"}
+                                            onClick={() => handleSelectUser(u.email)}
+                                            text={'Administrar'}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                    {selectedUser && (
+                        <div className="p-4 border shadow-md space-y-4 bg-[#EEEDE4] rounded-xl">
+                            <h3 className="text-lg font-bold">Datos de: {selectedUser.name}</h3>
+                            <p>Email: {selectedUser.email}</p>
+                            <p>Rol: {selectedUser.role}</p>
+
+                            <UserDetailSection
+                                title="Estudios"
+                                items={selectedUser.studies}
+                                fieldName="title"
+                                placeholder="Nuevo estudio"
+                                onAdd={() => handleAddStudyToUser(newStudy)}
+                                onUpdate={(id) => handleUpdateStudy(id, editStudies[id])}
+                                onDelete={(id) => handleDeleteRequest(id, 'study')}
+                                editingId={editingStudyId}
+                                setEditingId={setEditingStudyId}
+                                editMap={editStudies}
+                                setEditMap={setEditStudies}
+                                inputValue={newStudy}
+                                setInputValue={setNewStudy}
+                                loadingRequest={loadingRequest}
+                            />
+
+                            <UserDetailSection
+                                title="Direcciones"
+                                items={selectedUser.addresses}
+                                fieldName="location"
+                                placeholder="Nueva dirección"
+                                onAdd={() => handleAddAddressToUser(newAddress)}
+                                onUpdate={(id) => handleUpdateAddress(id, editAddresses[id])}
+                                onDelete={(id) => handleDeleteRequest(id, 'address')}
+                                editingId={editingAddressId}
+                                setEditingId={setEditingAddressId}
+                                editMap={editAddresses}
+                                setEditMap={setEditAddresses}
+                                inputValue={newAddress}
+                                setInputValue={setNewAddress}
+                                loadingRequest={loadingRequest}
+                            />
+                        </div>
                     )}
                 </div>
-                {selectedUser && (
-                    <div className="p-4 border shadow-md space-y-4 bg-[#EEEDE4] rounded-xl">
-                        <h3 className="text-lg font-bold">Datos de: {selectedUser.name}</h3>
-                        <p>Email: {selectedUser.email}</p>
-                        <p>Rol: {selectedUser.role}</p>
-
-                        <UserDetailSection
-                            title="Estudios"
-                            items={selectedUser.studies}
-                            fieldName="title"
-                            placeholder="Nuevo estudio"
-                            onAdd={() => handleAddStudyToUser(newStudy)}
-                            onUpdate={(id) => handleUpdateStudy(id, editStudies[id])}
-                            onDelete={(id) => handleDeleteRequest(id, 'study')}
-                            editingId={editingStudyId}
-                            setEditingId={setEditingStudyId}
-                            editMap={editStudies}
-                            setEditMap={setEditStudies}
-                            inputValue={newStudy}
-                            setInputValue={setNewStudy}
-                            loadingRequest={loadingRequest}
-                        />
-
-                        <UserDetailSection
-                            title="Direcciones"
-                            items={selectedUser.addresses}
-                            fieldName="location"
-                            placeholder="Nueva dirección"
-                            onAdd={() => handleAddAddressToUser(newAddress)}
-                            onUpdate={(id) => handleUpdateAddress(id, editAddresses[id])}
-                            onDelete={(id) => handleDeleteRequest(id, 'address')}
-                            editingId={editingAddressId}
-                            setEditingId={setEditingAddressId}
-                            editMap={editAddresses}
-                            setEditMap={setEditAddresses}
-                            inputValue={newAddress}
-                            setInputValue={setNewAddress}
-                            loadingRequest={loadingRequest}
-                        />
-                    </div>
-                )}
+                <ConfirmModal
+                    isOpen={showConfirm}
+                    message="Esta acción es irreversible"
+                    onConfirm={handleConfirmDelete}
+                    onCancel={() => setShowConfirm(false)}
+                />
             </div>
-            <ConfirmModal
-                isOpen={showConfirm}
-                message="Esta acción es irreversible"
-                onConfirm={handleConfirmDelete}
-                onCancel={() => setShowConfirm(false)}
-            />
         </div>
     )
 }

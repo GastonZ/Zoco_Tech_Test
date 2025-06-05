@@ -11,11 +11,11 @@ const Login = () => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-  const { login, isAuthenticated } = useAuth()
+  const { login, isAuthenticated, role} = useAuth()
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard')
+      navigate(role === 'admin' ? '/admin' : '/user')
     }
   }, [isAuthenticated, navigate])
 
@@ -27,7 +27,12 @@ const Login = () => {
     try {
       const { token, user } = await loginMock({ email, password })
       login(token, user)
-      navigate('/dashboard')
+      if (user.role === 'admin') {
+        navigate('/admin')
+      } else {
+        navigate('/user')
+      }
+
     } catch (err) {
       setError('Credenciales inválidas')
     } finally {

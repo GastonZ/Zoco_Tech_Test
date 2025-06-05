@@ -1,23 +1,42 @@
 import axios from 'axios'
 import { simulateDelay } from '../utils/helper'
+import { toastError } from '../utils/toasts'
 
 let users = []
 const STORAGE_KEY = 'users'
-
 const loadInitialUsers = async () => {
+  try {
     const savedUsers = sessionStorage.getItem(STORAGE_KEY)
+
     if (savedUsers) {
-        users = JSON.parse(savedUsers)
+      const parsed = JSON.parse(savedUsers)
+
+      if (!Array.isArray(parsed)) {
+        throw new Error('Datos corruptos en sessionStorage')
+      }
+
+      users = parsed
     } else {
-        const { data } = await axios.get('/mock/users.json')
-        users = data.users
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(users))
+      const response = await axios.get('/mock/users.json')
+
+      if (!response?.data?.users || !Array.isArray(response.data.users)) {
+        throw new Error('Formato inválido de usuarios desde el archivo')
+      }
+
+      users = response.data.users
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(users))
     }
+  } catch (err) {
+    console.error('Error cargando usuarios:', err)
+    toastError('Error cargando datos. Intenta recargar la página o verifica tu conexión a internet.')
+    users = []
+  }
 }
 
 export const initUsers = async () => {
     await loadInitialUsers()
 }
+
 
 let nextUserId = users.length + 1
 
