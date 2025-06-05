@@ -55,9 +55,8 @@ const UserDetailSection = ({
                                     <div className='flex flex-col gap-2 w-full'>
                                         <RegularInput
                                             value={currentValue}
-                                            onChange={(e) =>
-                                                setEditMap((prev) => ({ ...prev, [item.id]: e.target.value }))
-                                            }
+                                            onChange={(e) => setEditMap(item.id, e.target.value)}
+
                                             className="border px-2 py-1 rounded w-full"
                                         />
                                         {!isValid && (
@@ -84,7 +83,7 @@ const UserDetailSection = ({
                                             <RegularBtn
                                                 onClick={() => {
                                                     setEditingId(item.id)
-                                                    setEditMap((prev) => ({ ...prev, [item.id]: item[fieldName] }))
+                                                    setEditMap(item.id, item[fieldName])
                                                 }}
                                                 className="bg-blue-500 text-white px-3 py-1 rounded cursor-pointer hover:bg-blue-600 transition"
                                                 text={"✏️"}

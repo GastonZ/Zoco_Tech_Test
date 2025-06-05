@@ -273,10 +273,7 @@ const Admin = () => {
                                 editingId={state.editingStudyId}
                                 setEditingId={(id) => setField('editingStudyId', id)}
                                 editMap={state.editStudies}
-                                setEditMap={(updater) => {
-                                    const updated = typeof updater === 'function' ? updater(state.editStudies) : updater
-                                    setField('editStudies', updated)
-                                }}
+                                setEditMap={(id, val) => setField('editStudies', { ...state.editStudies, [id]: val })}
                                 inputValue={state.newStudy}
                                 setInputValue={(val) => setField('newStudy', val)}
                                 loadingRequest={state.loadingRequest}
@@ -293,10 +290,7 @@ const Admin = () => {
                                 editingId={state.editingAddressId}
                                 setEditingId={(id) => setField('editingAddressId', id)}
                                 editMap={state.editAddresses}
-                                setEditMap={(updater) => {
-                                    const updated = typeof updater === 'function' ? updater(state.editAddresses) : updater
-                                    setField('editAddresses', updated)
-                                }}
+                                setEditMap={(id, val) => setField('editAddresses', { ...state.editStudies, [id]: val })}
                                 inputValue={state.newAddress}
                                 setInputValue={(val) => setField('newAddress', val)}
                                 loadingRequest={state.loadingRequest}
